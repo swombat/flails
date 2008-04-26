@@ -121,7 +121,7 @@ module RubyAMF
       rescue Exception => e
         puts e.message
         puts e.backtrace
-        raise RUBYAMFException.new(RUBYAMFException.VO_ERROR, e.message)
+        raise RUBYAMFException.new(RUBYAMFException::VO_ERROR, e.message)
       end
     end
   end

@@ -86,7 +86,7 @@ module RubyAMF
         attr_accessor :scaffolding, :always_add_to_params
         
         def register(mapping)
-          raise RUBYAMFException.new(RUBYAMFException.USER_ERROR, "You must atleast specify the :controller for a parameter mapping") unless mapping[:controller]
+          raise RUBYAMFException.new(RUBYAMFException::USER_ERROR, "You must atleast specify the :controller for a parameter mapping") unless mapping[:controller]
           set_parameter_mapping(mapping[:controller], mapping[:action], mapping)
         end
         

@@ -176,13 +176,13 @@ class AMFBody
         @service_class_name      = uri_elements.collect(&:to_title).join("::")
         @service_class_file_path = "#{RequestStore.service_path}/#{uri_elements[0..-2].collect{|x| x+'/'}}#{uri_elements.last.underscore}.rb"
       else
-        raise RUBYAMFException.new(RUBYAMFException.SERVICE_TRANSLATION_ERROR, "The correct service information was not provided to complete the service call. The service and method name were not provided")
+        raise RUBYAMFException.new(RUBYAMFException::SERVICE_TRANSLATION_ERROR, "The correct service information was not provided to complete the service call. The service and method name were not provided")
       end
     else
       if RequestStore.flex_messaging
-        raise RUBYAMFException.new(RUBYAMFException.USER_ERROR, "There is no \"source\" property defined on your RemoteObject, please see RemoteObject documentation for more information.")
+        raise RUBYAMFException.new(RUBYAMFException::USER_ERROR, "There is no \"source\" property defined on your RemoteObject, please see RemoteObject documentation for more information.")
       else
-        raise RUBYAMFException.new(RUBYAMFException.SERVICE_TRANSLATION_ERROR, "The correct service information was not provided to complete the service call. The service and method name were not provided")
+        raise RUBYAMFException.new(RUBYAMFException::SERVICE_TRANSLATION_ERROR, "The correct service information was not provided to complete the service call. The service and method name were not provided")
       end
     end
   end

@@ -326,5 +326,5 @@ begin
   end
   end
 rescue Exception => e
-  raise RUBYAMFException.new(RUBYAMFException.AMF_ERROR, "The AMF data is incorrect or incomplete.")
+  raise RUBYAMFException.new(RUBYAMFException::AMF_ERROR, "The AMF data is incorrect or incomplete.")
 end
