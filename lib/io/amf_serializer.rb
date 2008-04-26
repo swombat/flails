@@ -244,9 +244,9 @@ module RubyAMF
   
       def write_amf3_array(array)
         i = @stored_objects.index(array)
-        unless i.nil?
-          write_amf3_integer (i << 1)
-        else
+        # unless i.nil?
+        #   write_amf3_integer (i << 1)
+        # else
           @stored_objects << array
           @stored_objects << "placeholder for Array (as opposed to ArrayCollection)" # Flash recognises 2 objects instead of 1 for each VOAC
           num_objects = array.length * 2 + 1
@@ -261,7 +261,7 @@ module RubyAMF
           write_amf3_integer(num_objects)
           @stream << "\001" # represents an amf3 empty string #write empty for string keyed elements here, as it's never allowed from ruby
           array.each{|v| write_amf3(v) }
-        end
+        # end
       end
   
       def write_amf3_date(datetime_arg) # Aryk: Dates will almost never be the same, so turn off the storing_objects
