@@ -43,7 +43,7 @@ module RubyAMF
             begin #this is where any exception throughout the RubyAMF Process gets transformed into a relevant AMF0/AMF3 faultObject
               action.run(body)
               # puts "#{action} took: " + Benchmark.realtime{action.run(body)}.to_s + " secs"
-            rescue RUBYAMFException => ramfe
+            rescue RubyAMF::Exceptions::AMFException => ramfe
               puts ramfe.message
               puts ramfe.backtrace
               ramfe.ebacktrace = ramfe.backtrace.to_s
@@ -51,7 +51,7 @@ module RubyAMF
             rescue Exception => e
               puts e.message
               puts e.backtrace
-              ramfe = RUBYAMFException.new(e.class.to_s, e.message.to_s) #translate the exception into a rubyamf exception
+              ramfe = RubyAMF::Exceptions::AMFException.new(e.class.to_s, e.message.to_s) #translate the exception into a rubyamf exception
               ramfe.ebacktrace = e.backtrace.to_s
               RubyAMF::Exceptions::ExceptionHandler::HandleException(ramfe, body)
             end

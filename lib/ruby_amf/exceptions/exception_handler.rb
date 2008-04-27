@@ -3,7 +3,7 @@ require 'app/amf'
 module RubyAMF
   module Exceptions
 
-    #This class is used to take an RUBYAMFException and translate it into something that is useful when returned back to flash.
+    #This class is used to take an AMFException and translate it into something that is useful when returned back to flash.
     class ExceptionHandler
       include RubyAMF::App
       include RubyAMF::AMF

@@ -3,7 +3,6 @@ module RubyAMF
     require 'app/configuration' # cant put this at the top because VoHash has to be instantiated for app/configuration to work
 
     class VoUtil
-      
       include RubyAMF::Configuration
       include RubyAMF::Exceptions
       
@@ -118,7 +117,7 @@ module RubyAMF
       rescue Exception => e
         puts e.message
         puts e.backtrace
-        raise RUBYAMFException.new(RUBYAMFException::VO_ERROR, e.message)
+        raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::VO_ERROR, e.message)
       end
     end
   end

@@ -1,7 +1,7 @@
 module RubyAMF
   module IO
     class AMFDeserializer
-      
+      RubyAMF::Exceptions::AMFException
       require 'io/read_write'
       
       include RubyAMF::AMF
@@ -44,7 +44,7 @@ module RubyAMF
       def preamble
         version = read_int8 #first byte, not anything important
         if version != 0 && version != 3
-          raise RUBYAMFException.new(RUBYAMFException::VERSION_ERROR, "The amf version is incorrect")
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::VERSION_ERROR, "The amf version is incorrect")
         end
         
         #read the client. (0x00 - Flash Player, 0x01 - FlashComm)
@@ -140,7 +140,7 @@ module RubyAMF
         when AMF_OBJECT
           read_object
         when AMF_MOVIE_CLIP
-          raise RUBYAMFException.new(RUBYAMFException::UNSUPPORTED_AMF0_TYPE, 'You cannot send a movie clip')
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNSUPPORTED_AMF0_TYPE, 'You cannot send a movie clip')
         when AMF_NULL
           return nil
         when AMF_UNDEFINED
@@ -160,9 +160,9 @@ module RubyAMF
           utflen = read_int32_network #don't touch the length
           read_utf
         when AMF_UNSUPPORTED
-          raise RUBYAMFException.new(RUBYAMFException::UNSUPPORTED_AMF0_TYPE, 'Unsupported type')
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNSUPPORTED_AMF0_TYPE, 'Unsupported type')
         when AMF_RECORDSET
-          raise RUBYAMFException.new(RUBYAMFException::UNSUPPORTED_AMF0_TYPE, 'You cannot send a RecordSet to RubyAMF, although you can receive them from RubyAMF.')
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNSUPPORTED_AMF0_TYPE, 'You cannot send a RecordSet to RubyAMF, although you can receive them from RubyAMF.')
         when AMF_XML
           read_xml
         when AMF_TYPED_OBJECT
@@ -238,11 +238,11 @@ module RubyAMF
           reference = type >> 1
           if reference < @stored_strings.length
             if @stored_strings[reference] == nil
-              raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant string at index #{reference}, please tell aaron@rubyamf.org"))
+              raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant string at index #{reference}, please tell aaron@rubyamf.org"))
             end
             return @stored_strings[reference]
           else
-            raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_STRING_REFERENCE_ERROR, "Reference to non existant string at index #{reference}, please tell aaron@rubyamf.org") )
+            raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_STRING_REFERENCE_ERROR, "Reference to non existant string at index #{reference}, please tell aaron@rubyamf.org") )
           end
         else
           
@@ -276,11 +276,11 @@ module RubyAMF
           if reference < @stored_objects.length
             if @stored_objects[reference] == nil
               
-              raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant date at index #{reference}, please tell aaron@rubyamf.org"))
+              raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant date at index #{reference}, please tell aaron@rubyamf.org"))
             end
             return @stored_objects[reference]
           else
-            raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Undefined date object reference when deserialing AMF3: #{reference}") )
+            raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Undefined date object reference when deserialing AMF3: #{reference}") )
           end
         else
           seconds = read_double.to_f/1000
@@ -302,7 +302,7 @@ module RubyAMF
           reference = type >> 1
           if reference < @stored_objects.length
             if @stored_objects[reference] == nil
-              raise(RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant array at index #{reference}, please tell aaron@rubyamf.org"))
+              raise(RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant array at index #{reference}, please tell aaron@rubyamf.org"))
             end
             return @stored_objects[reference]
           else
@@ -344,11 +344,11 @@ module RubyAMF
           reference = type >> 1
           if reference < @stored_objects.length
             if @stored_objects[reference] == nil
-              raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant object at index #{reference}, please tell aaron@rubyamf.org."))
+              raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant object at index #{reference}, please tell aaron@rubyamf.org."))
             end
             return @stored_objects[reference]
           else
-            raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant object #{reference}"))
+            raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant object #{reference}"))
           end
         else
           
@@ -360,7 +360,7 @@ module RubyAMF
             if class_reference < @stored_defs.length
               class_definition = @stored_defs[class_reference]
             else
-              raise RUBYAMFException.new(RUBYAMFException::UNDEFINED_DEFINITION_REFERENCE_ERROR, "Reference to non existant class definition #{class_reference}")
+              raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_DEFINITION_REFERENCE_ERROR, "Reference to non existant class definition #{class_reference}")
             end
           else
             actionscript_class_name = read_amf3_string
@@ -394,7 +394,7 @@ module RubyAMF
             if ['flex.messaging.io.ObjectProxy','flex.messaging.io.ArrayCollection','com.woobius.api.collections.ValueObjectArrayCollection'].include?(action_class_name)
               obj = read_amf3
             else
-              raise( RUBYAMFException.new(RUBYAMFException::USER_ERROR, "Unable to read externalizable data type #{type}"))
+              raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::USER_ERROR, "Unable to read externalizable data type #{type}"))
             end            
           else            
             translate_case = !skip_mapping&&ClassMappings.translate_case  # remove the need for a method call / also, don't want to convert on main remoting object
@@ -429,11 +429,11 @@ module RubyAMF
           reference = type >> 1
           if reference < @stored_objects.length
             if @stored_objects[reference] == nil
-              raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant byteArray at index #{reference}, please tell aaron@rubyamf.org"))
+              raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant byteArray at index #{reference}, please tell aaron@rubyamf.org"))
             end
             return @stored_objects[reference]
           else
-            raise( RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant byteArray #{reference}"))
+            raise( RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "Reference to non existant byteArray #{reference}"))
           end
         else
           length = type >> 1

@@ -1,6 +1,5 @@
 #This stores supporting configuration classes used in the config file to register class mappings and parameter mappings etc.
 require 'app/request_store'
-require 'exception/rubyamf_exception'
 module RubyAMF
   module Configuration
     #ClassMappings configuration support class
@@ -86,7 +85,7 @@ module RubyAMF
         attr_accessor :scaffolding, :always_add_to_params
         
         def register(mapping)
-          raise RUBYAMFException.new(RUBYAMFException::USER_ERROR, "You must atleast specify the :controller for a parameter mapping") unless mapping[:controller]
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::USER_ERROR, "You must atleast specify the :controller for a parameter mapping") unless mapping[:controller]
           set_parameter_mapping(mapping[:controller], mapping[:action], mapping)
         end
         

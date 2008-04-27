@@ -92,13 +92,13 @@ module RubyAMF
         rescue Exception => e
           puts e.message
           puts e.backtrace
-          raise RUBYAMFException.new(RUBYAMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "There was an error loading the service class #{@amfbody.service_class_name}")
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::UNDEFINED_OBJECT_REFERENCE_ERROR, "There was an error loading the service class #{@amfbody.service_class_name}")
         end
         
         if @service.private_methods.include?(@amfbody.service_method_name)
-          raise RUBYAMFException.new(RUBYAMFException::METHOD_ACCESS_ERROR, "The method {#{@amfbody.service_method_name}} in class {#{@amfbody.service_class_file_path}} is declared as private, it must be defined as public to access it.")
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::METHOD_ACCESS_ERROR, "The method {#{@amfbody.service_method_name}} in class {#{@amfbody.service_class_file_path}} is declared as private, it must be defined as public to access it.")
         elsif !@service.public_methods.include?(@amfbody.service_method_name)
-          raise RUBYAMFException.new(RUBYAMFException::METHOD_UNDEFINED_METHOD_ERROR, "The method {#{@amfbody.service_method_name}} in class {#{@amfbody.service_class_file_path}} is not declared.")
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::METHOD_UNDEFINED_METHOD_ERROR, "The method {#{@amfbody.service_method_name}} in class {#{@amfbody.service_class_file_path}} is not declared.")
         end
         
         #clone the request and response and alter it for the target controller/method
@@ -132,7 +132,7 @@ module RubyAMF
           #One last update of the parameters hash, this will map custom mappings to the hash, and will override any conflicting from above
           ParameterMappings.update_request_parameters(@amfbody.service_class_name, @amfbody.service_method_name, req.parameters, rubyamf_params, @amfbody.value)
         rescue Exception => e
-          raise RUBYAMFException.new(RUBYAMFException::PARAMETER_MAPPING_ERROR, "There was an error with your parameter mappings: {#{e.message}}")
+          raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::PARAMETER_MAPPING_ERROR, "There was an error with your parameter mappings: {#{e.message}}")
         end
         @service.process(req, res)
         
@@ -145,7 +145,7 @@ module RubyAMF
         
         #handle FaultObjects
         if RubyAMF::Exceptions::FaultObject === result
-          raise RUBYAMFException.new(result['code'], result['message'])
+          raise RubyAMF::Exceptions::AMFException.new(result['code'], result['message'])
         end
         
         #amf3
