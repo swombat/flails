@@ -13,7 +13,7 @@ class RubyamfController < ActionController::Base
     #if not flash user agent, send some html content
     amf_response = if request.env['CONTENT_TYPE'].to_s.match(/x-amf/) 
         headers['Content-Type'] = "application/x-amf"
-        RailsGateway.new.service(request.raw_post) #send the raw data throught the rubyamf gateway and create the response
+        RubyAMF::App::RailsGateway.new.service(request.raw_post) #send the raw data throught the rubyamf gateway and create the response
       else 
         welcome_screen_html # load in some stub html
       end
