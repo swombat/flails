@@ -1,7 +1,6 @@
 require 'exception/rubyamf_exception'
 module RubyAMF
 module AMF
-include RubyAMF::VoHelper
 #A High level amf message wrapper with methods for easy header and body manipulation
 class AMFObject
 
@@ -198,7 +197,7 @@ class AMFHeader
 end 
    
 #this cass takes a RUBYAMFException and inspects the details of the exception, returning this object back to flash as a Fault object
-class ASFault < VoHash
+class ASFault < RubyAMF::Util::VoHash
   
   #pass a RUBYAMFException, create new keys based on exception for the fault object
   def initialize(e)
@@ -240,7 +239,7 @@ class ASFault < VoHash
 end
 
 #ActionScript 3 Exeption, this class bubbles to the player after an Exception in Ruby
-class AS3Fault < VoHash
+class AS3Fault < RubyAMF::Util::VoHash
   
   #  attr_accessor :faultCode, :faultString, :faultDetail, :rootCause, :extendedData
   #pass a RUBYAMFException, create new keys based on exception for the fault object

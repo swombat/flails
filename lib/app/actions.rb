@@ -2,10 +2,9 @@ require 'app/configuration'
 module RubyAMF
   module Actions
     module Utils
-      include RubyAMF::VoHelper
       
       def generate_acknowledge_object(message_id = nil, client_id = nil)
-        res = VoHash.new
+        res = RubyAMF::Util::VoHash.new
         res._explicitType = "flex.messaging.messages.AcknowledgeMessage"
         res["messageId"] = rand_uuid
         res["clientId"] = client_id||rand_uuid
@@ -35,7 +34,7 @@ module RubyAMF
       
       def run(amfbody)
         if RequestStore.amf_encoding == 'amf3'  && #AMF3
-          (raw_body = amfbody.value[0]).is_a?(VoHash) &&
+          (raw_body = amfbody.value[0]).is_a?(RubyAMF::Util::VoHash) &&
             ['flex.messaging.messages.RemotingMessage','flex.messaging.messages.CommandMessage'].include?(raw_body._explicitType)
           case raw_body._explicitType
           when 'flex.messaging.messages.RemotingMessage' #Flex Messaging setup
@@ -72,7 +71,6 @@ module RubyAMF
       include RubyAMF::Exceptions
       include RubyAMF::Configuration
       include RubyAMF::Actions::Utils
-      include RubyAMF::VoHelper
       
       def run(amfbody)
         if amfbody.exec == false

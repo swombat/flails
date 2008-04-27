@@ -9,7 +9,7 @@ module RubyAMF
       include RubyAMF::App
       include RubyAMF::IO::BinaryWriter
       include RubyAMF::IO::Constants
-      include RubyAMF::VoHelper
+
       attr_accessor :stream
 
       def initialize(amfobj)
@@ -88,9 +88,9 @@ module RubyAMF
           (value) ? @stream << "\001" : @stream << "\000"
     
         elsif value.is_a?(ActiveRecord::Base) # Aryk: this way, we can bypass the next four checks most of the time
-          write_object(VoUtil.get_vo_hash_for_outgoing(value))
+          write_object(RubyAMF::Util::VoUtil.get_vo_hash_for_outgoing(value))
     
-        elsif(value.is_a?(VoHash))
+        elsif(value.is_a?(RubyAMF::Util::VoHash))
           write_object(value)
     
         elsif (value.is_a?(Array))
@@ -111,7 +111,7 @@ module RubyAMF
         elsif (value.class.to_s == 'BeautifulSoup')
           write_xml(value.to_s)
         else
-          write_object(VoUtil.get_vo_hash_for_outgoing(value))
+          write_object(RubyAMF::Util::VoUtil.get_vo_hash_for_outgoing(value))
         end
       end
 
@@ -219,8 +219,8 @@ module RubyAMF
       end
     
       def write_amf3_object(value)
-        hash = value.is_a?(Hash) ? value : VoUtil.get_vo_hash_for_outgoing(value)
-        not_vo_hash = !hash.is_a?(VoHash) # is this not a vohash - then doesnt have an _explicitType parameter
+        hash = value.is_a?(Hash) ? value : RubyAMF::Util::VoUtil.get_vo_hash_for_outgoing(value)
+        not_vo_hash = !hash.is_a?(RubyAMF::Util::VoHash) # is this not a vohash - then doesnt have an _explicitType parameter
         @stream << "\n" # represents an amf3 object and dynamic object
         # Check if this object has already been written (for circular references)
         i = @stored_objects.index(value)
@@ -343,7 +343,7 @@ module RubyAMF
       end
 
       def write_object(vohash)
-        if vohash.is_a?(VoHash) && vohash._explicitType
+        if vohash.is_a?(RubyAMF::Util::VoHash) && vohash._explicitType
           @stream << "\020" #write_byte(16) #custom class
           write_utf(vohash._explicitType)
         else

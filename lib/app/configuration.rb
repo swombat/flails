@@ -120,7 +120,7 @@ module RubyAMF
                       request_params[key] = rubyamf_params[key] #put it into rubyamf_params
                     end
                   else
-                    if first.is_a?(VoHash)
+                    if first.is_a?(RubyAMF::Util::VoHash)
                       if (key = first.explicitType.split('::').last.downcase.to_sym)
                         rubyamf_params[key] = first
                         if always_add_to_params

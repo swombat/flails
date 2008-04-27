@@ -2,7 +2,6 @@
 
 #utils must be first
 require 'util/string'
-require 'util/vo_helper'
 require 'util/action_controller'
 require 'app/fault_object'
 # require 'app/rails_gateway'

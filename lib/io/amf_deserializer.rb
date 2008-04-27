@@ -10,7 +10,7 @@ module RubyAMF
       include RubyAMF::Exceptions
       include RubyAMF::IO::BinaryReader
       include RubyAMF::IO::Constants
-      include RubyAMF::VoHelper
+
       attr_accessor :stream
       attr_accessor :stream_position      
       attr_accessor :amf0_object_default_members_ignore
@@ -378,7 +378,7 @@ module RubyAMF
           
           # check to see if its the first main amf object or a flex message obj, because then we need a _explicitType field type and skip some things
           skip_mapping = if action_class_name && action_class_name.include?("flex.messaging")
-            obj = VoHash.new # initialize an empty VoHash value holder    
+            obj = RubyAMF::Util::VoHash.new # initialize an empty VoHash value holder    
             obj._explicitType = action_class_name
             true
           else # otherwise just use a normal hash
@@ -415,7 +415,7 @@ module RubyAMF
                 #end
               end
             end
-            obj = VoUtil.get_vo_for_incoming(obj,action_class_name) unless skip_mapping
+            obj = RubyAMF::Util::VoUtil.get_vo_for_incoming(obj,action_class_name) unless skip_mapping
           end
           @stored_objects[obj_position] = obj # put the new object into the same position as the original object since it was worked on
           obj
@@ -516,8 +516,8 @@ module RubyAMF
         type = read_utf
         value = read_object
         #if type not nil and it is an VoHash, check VO Mapping
-        if type && value.is_a?(VoHash)
-          vo = VoUtil.get_vo_for_incoming(value,type)
+        if type && value.is_a?(RubyAMF::Util::VoHash)
+          vo = RubyAMF::Util::VoUtil.get_vo_for_incoming(value,type)
           value = vo
         end
         value #return value if no VO was created
@@ -538,7 +538,7 @@ module RubyAMF
       end
 
       def read_object
-        obj = VoHash.new
+        obj = RubyAMF::Util::VoHash.new
         key = read_utf #read the value's key
         type = read_byte #read the value's type
         while (type != 9) do
