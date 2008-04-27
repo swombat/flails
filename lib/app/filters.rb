@@ -1,6 +1,6 @@
 require 'io/amf_deserializer'
 require 'io/amf_serializer'
-require 'exception/exception_handler'
+
 module RubyAMF
   module Filter
     
@@ -47,13 +47,13 @@ module RubyAMF
               puts ramfe.message
               puts ramfe.backtrace
               ramfe.ebacktrace = ramfe.backtrace.to_s
-              ExceptionHandler::HandleException(ramfe,body)
+              RubyAMF::Exceptions::ExceptionHandler::HandleException(ramfe,body)
             rescue Exception => e
               puts e.message
               puts e.backtrace
               ramfe = RUBYAMFException.new(e.class.to_s, e.message.to_s) #translate the exception into a rubyamf exception
               ramfe.ebacktrace = e.backtrace.to_s
-              ExceptionHandler::HandleException(ramfe, body)
+              RubyAMF::Exceptions::ExceptionHandler::HandleException(ramfe, body)
             end
           end
         end
