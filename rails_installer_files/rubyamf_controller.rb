@@ -1,14 +1,12 @@
 class RubyamfController < ActionController::Base
 
-  include RubyAMF::App
-  
   def gateway      
-    RequestStore.rails_authentication = nil #clear auth hash
-    RequestStore.rails_request = request
-    RequestStore.rails_response = response
+    RubyAMF::App::RequestStore.rails_authentication = nil #clear auth hash
+    RubyAMF::App::RequestStore.rails_request = request
+    RubyAMF::App::RequestStore.rails_response = response
           
     #Compress the amf output for smaller data transfer over the wire
-    RequestStore.gzip = request.env['ACCEPT_ENCODING'].to_s.match(/gzip,[\s]{0,1}deflate/)
+    RubyAMF::App::RequestStore.gzip = request.env['ACCEPT_ENCODING'].to_s.match(/gzip,[\s]{0,1}deflate/)
     
     #if not flash user agent, send some html content
     amf_response = if request.env['CONTENT_TYPE'].to_s.match(/x-amf/) 

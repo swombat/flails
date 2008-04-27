@@ -2,35 +2,7 @@ require 'io/amf_deserializer'
 require 'io/amf_serializer'
 
 module RubyAMF
-  module Filter
-    
-    class FilterChain
-      include RubyAMF::App
-      def run(amfobj)
-        RequestStore.filters.each do |filter| #grab the filters to run through
-          filter.run(amfobj)
-          # puts "#{filter}: " +Benchmark.realtime{}.to_s
-        end
-      end
-    end
-    
-    class AMFDeserializerFilter
-      include RubyAMF::IO  
-      def run(amfobj)
-        AMFDeserializer.new.rubyamf_read(amfobj)
-      end
-    end
-
-    class AuthenticationFilter
-      include RubyAMF::App
-      def run(amfobj)
-        RequestStore.auth_header = nil # Aryk: why do we need to rescue this? 
-        if (auth_header = amfobj.get_header_by_key('Credentials'))
-          RequestStore.auth_header = auth_header #store the auth header for later
-          RequestStore.rails_authentication = {:username => auth_header.value['userid'], :password => auth_header.value['password']}
-        end
-      end
-    end
+  module Filters
 
     class BatchFilter
       include RubyAMF::App
@@ -57,13 +29,6 @@ module RubyAMF
             end
           end
         end
-      end
-    end
-
-    class AMFSerializeFilter
-      include RubyAMF::IO
-      def run(amfobj) 
-        AMFSerializer.new(amfobj).run 
       end
     end
   end

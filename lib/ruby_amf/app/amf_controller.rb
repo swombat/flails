@@ -1,5 +1,3 @@
-require 'app/request_store'
-
 module RubyAMF
   module App
     class AMFController < ActionController::Base

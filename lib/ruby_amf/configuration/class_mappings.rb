@@ -1,5 +1,4 @@
 #This stores supporting configuration classes used in the config file to register class mappings and parameter mappings etc.
-require 'app/request_store'
 module RubyAMF
   module Configuration
     #ClassMappings configuration support class

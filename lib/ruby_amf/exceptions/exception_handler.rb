@@ -1,13 +1,11 @@
-require 'app/request_store'
 module RubyAMF
   module Exceptions
 
     #This class is used to take an AMFException and translate it into something that is useful when returned back to flash.
     class ExceptionHandler
-      include RubyAMF::App
-  
+
       def ExceptionHandler.HandleException(e, body)
-        if RequestStore.amf_encoding == 'amf3'
+        if RubyAMF::App::RequestStore.amf_encoding == 'amf3'
           body.results = RubyAMF::Exceptions::AS3Fault.new(e)
           #trigger RemoteObject failure for AsyncTokens
           if body.special_handling == "RemotingMessage"
