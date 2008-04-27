@@ -1,10 +1,8 @@
 module RubyAMF
   module IO
     class AMFDeserializer
-      RubyAMF::Exceptions::AMFException
       require 'io/read_write'
       
-      include RubyAMF::AMF
       include RubyAMF::App
       include RubyAMF::Configuration
       include RubyAMF::Exceptions
@@ -84,7 +82,7 @@ module RubyAMF
           value = read(type)
           
           #create new header
-          header = AMFHeader.new(name,required,value)
+          header = RubyAMF::App::AMFHeader.new(name,required,value)
           
           #add header to the amfbody object
           @amfobj.add_header(header)
@@ -118,7 +116,7 @@ module RubyAMF
           value = read(type)
           
           #new body
-          body = AMFBody.new(target,response,value)
+          body = RubyAMF::App::AMFBody.new(target,response,value)
           
           #add the body to the amfobj 
           @amfobj.add_body(body)

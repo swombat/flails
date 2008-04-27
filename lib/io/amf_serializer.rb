@@ -4,7 +4,6 @@ module RubyAMF
 
       require 'io/read_write'
 
-      include RubyAMF::AMF
       include RubyAMF::Configuration
       include RubyAMF::App
       include RubyAMF::IO::BinaryWriter

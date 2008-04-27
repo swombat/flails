@@ -8,7 +8,6 @@ module RubyAMF
   module App
     #Rails Gateway, extends regular gateway and changes the actions
     class RailsGateway
-      include RubyAMF::AMF
       include RubyAMF::Configuration
       include RubyAMF::Filter
       include RubyAMF::App # for RequestStore
@@ -21,7 +20,7 @@ module RubyAMF
 
       #all get and post requests circulate throught his method
       def service(raw)
-        amfobj = AMFObject.new(raw)
+        amfobj = RubyAMF::App::AMFObject.new(raw)
         FilterChain.new.run(amfobj)
         RequestStore.gzip ? Zlib::Deflate.deflate(amfobj.output_stream) : amfobj.output_stream
       end
