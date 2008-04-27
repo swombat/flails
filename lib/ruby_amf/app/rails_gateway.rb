@@ -1,14 +1,11 @@
 # require 'app/gateway'
 require 'app/request_store'
-require 'app/amf'
 require 'app/filters'
-require 'app/configuration'
 require 'zlib'
 module RubyAMF
   module App
     #Rails Gateway, extends regular gateway and changes the actions
     class RailsGateway
-      include RubyAMF::Configuration
       include RubyAMF::Filter
       include RubyAMF::App # for RequestStore
       include RubyAMF::Exceptions

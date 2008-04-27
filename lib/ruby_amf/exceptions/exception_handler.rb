@@ -1,5 +1,4 @@
 require 'app/request_store'
-require 'app/amf'
 module RubyAMF
   module Exceptions
 

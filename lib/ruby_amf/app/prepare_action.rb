@@ -1,11 +1,9 @@
-require 'app/configuration'
 module RubyAMF
   module App
     #This sets up each body for processing
     class PrepareAction
       include RubyAMF::App
       include RubyAMF::Util::ActionUtils
-      include RubyAMF::Configuration
       
       def run(amfbody)
         if RequestStore.amf_encoding == 'amf3'  && #AMF3
@@ -14,7 +12,7 @@ module RubyAMF
           case raw_body._explicitType
           when 'flex.messaging.messages.RemotingMessage' #Flex Messaging setup
             RequestStore.flex_messaging = true # only set RequestStore and ClassMappings when its a remoting message, not command message
-            ClassMappings.use_array_collection = !(ClassMappings.use_array_collection==false) # it will only set it to false if the user specifically sets use_array_collection to false
+            RubyAMF::Configuration::ClassMappings.use_array_collection = !(RubyAMF::Configuration::ClassMappings.use_array_collection==false) # it will only set it to false if the user specifically sets use_array_collection to false
             amfbody.special_handling = 'RemotingMessage'
             amfbody.value = raw_body['body']
             amfbody.set_meta('clientId', raw_body['clientId'])
@@ -33,7 +31,7 @@ module RubyAMF
           end
         else
           RequestStore.flex_messaging = false # ensure that array_collection is disabled 
-          ClassMappings.use_array_collection = false
+          RubyAMF::Configuration::ClassMappings.use_array_collection = false
         end
         
         amfbody.set_service_uri_information!

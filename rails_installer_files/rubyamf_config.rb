@@ -1,4 +1,3 @@
-require 'app/configuration'
 module RubyAMF
   module Configuration
     #set the service path used in all requests

@@ -1,7 +1,5 @@
 module RubyAMF
   module Util
-    require 'app/configuration' # cant put this at the top because VoHash has to be instantiated for app/configuration to work
-
     class VoUtil
       include RubyAMF::Configuration
       include RubyAMF::Exceptions

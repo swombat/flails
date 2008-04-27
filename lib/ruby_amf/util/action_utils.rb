@@ -1,4 +1,3 @@
-require 'app/configuration'
 module RubyAMF
   module Util
     module ActionUtils

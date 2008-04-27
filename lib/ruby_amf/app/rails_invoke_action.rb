@@ -1,11 +1,9 @@
-require 'app/configuration'
 module RubyAMF
   module App
     # Invoke ActionController's process on the target controller action
     class RailsInvokeAction
       include RubyAMF::App
       include RubyAMF::Exceptions
-      include RubyAMF::Configuration
       include RubyAMF::Util::ActionUtils
       
       def run(amfbody)
@@ -62,11 +60,11 @@ module RubyAMF
         end
         
         # put them by default into the parameter hash if they opt for it
-        rubyamf_params.each{|k,v| req.parameters[k] = v} if ParameterMappings.always_add_to_params       
+        rubyamf_params.each{|k,v| req.parameters[k] = v} if RubyAMF::Configuration::ParameterMappings.always_add_to_params       
           
         begin
           #One last update of the parameters hash, this will map custom mappings to the hash, and will override any conflicting from above
-          ParameterMappings.update_request_parameters(@amfbody.service_class_name, @amfbody.service_method_name, req.parameters, rubyamf_params, @amfbody.value)
+          RubyAMF::Configuration::ParameterMappings.update_request_parameters(@amfbody.service_class_name, @amfbody.service_method_name, req.parameters, rubyamf_params, @amfbody.value)
         rescue Exception => e
           raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::PARAMETER_MAPPING_ERROR, "There was an error with your parameter mappings: {#{e.message}}")
         end
