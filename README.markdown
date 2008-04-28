@@ -3,9 +3,15 @@ Flails - a ruby on rails + flex framework
 
 Authors: Daniel Tenner (daniel.flails at tenner dot org), Cliff Rowley
 
-Note: Flails is still in its infancy, badly documented, etc. Use at your own risk.
+Note: Flails is still in its infancy, badly documented, potentially broken, etc. Feel
+free to download it and use it. It is still roughly in line with the RubyAMF conventions.
+However, it may well be a waste of your time at this point in time.
 
 Flails is based on RubyAMF, by Aaron Smith (http://www.rubyamf.org).
+
+Flails would like to thank Karl von Randow of XK72.com for generously contributing a
+licence for "Charles" to Flails. Charles is an HTTP proxy/monitor/reverse proxy, that
+we are using to debug AMF calls. Charles can be found at http://www.xk72.com/charles/
 
 Overview:
 ==========
@@ -69,6 +75,10 @@ a tremendously useful library and if made many things possible.
 Many thanks also to the PyAMF team, particularly njoyce, for writing the PyAMF serialisation
 code in such a clear manner. It is effectively our reference implementation in rewriting
 the RubyAMF serialiser and deserialiser.
+
+Many thanks to Karl von Randow of XK72.com for generously contributing a licence for "Charles" 
+to Flails. Charles is an HTTP proxy/monitor/reverse proxy, that we are using to debug AMF 
+calls. Charles can be found at http://www.xk72.com/charles/
 
 Many thanks to Woobius for allowing us to open this piece of code.
 
