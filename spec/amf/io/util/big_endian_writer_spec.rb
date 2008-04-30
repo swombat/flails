@@ -156,6 +156,18 @@ describe RubyAMF::IO::Util::BigEndianWriter do
       test_run(@writer, data, :double)
     end
   end
+  
+  describe "writing utf-8 strings" do
+    it "should correctly encode a utf-8 string" do
+      data = {
+        "Καλημέρα"    => "\xce\x9a\xce\xb1\xce\xbb\xce\xb7\xce\xbc\xce\xad\xcf\x81\xce\xb1",
+        "κόσμε"       => "\xce\xba\xcf\x8c\xcf\x83\xce\xbc\xce\xb5",
+        "abcdef"      => "abcdef"
+      }
+      
+      test_run(@writer, data, :string)
+    end
+  end
 
   
 end

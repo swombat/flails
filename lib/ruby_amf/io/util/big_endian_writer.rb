@@ -20,7 +20,8 @@ module RubyAMF
           :int        => 'N',
           :uint       => 'N',
           :float      => 'g',
-          :double     => 'G'
+          :double     => 'G',
+          :string     => nil
         }
 
         attr_accessor :stream
@@ -32,7 +33,11 @@ module RubyAMF
         end
         
         def write(type, value, stream=@stream)
-          stream << [value].pack(TYPES[type])
+          unless TYPES[type].nil?
+            stream << [value].pack(TYPES[type])
+          else
+            stream << value
+          end
         end
         
       private
