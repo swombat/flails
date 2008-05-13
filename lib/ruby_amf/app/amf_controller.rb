@@ -3,7 +3,7 @@ module RubyAMF
     class AMFController < ActionController::Base
 
       # Add render :amf => object functionality
-      def render_with_amf(options = nil, &block)
+      def render_with_amf(options = nil, deprecated_status_or_extra_options=nil, &block)
         begin
           if options && options.is_a?(Hash) && options.keys.include?(:amf)
             #store results on RequestStore, can't prematurely return or send_data.
