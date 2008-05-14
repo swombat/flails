@@ -26,6 +26,7 @@ module RubyAMF
           when nil                                : encode_nil
           when RubyAMF::IO::Util::UndefinedType   : encode_undefined_type
           when Hash                               : encode_hash             value, write_type
+          when Array                              : encode_array            value, write_type
           end
         end
         
@@ -79,6 +80,20 @@ module RubyAMF
         def encode_reference(value)
           @writer.write(:uchar, RubyAMF::IO::AMF0::Types::REFERENCE)
           @writer.write(:ushort, @context.get_reference(value))
+        end
+        
+        def encode_array(value, write_type=true)
+          if @context.has_reference_for?(value)
+            encode_reference(value)
+            return
+          end
+          
+          @context.add_object(value)
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::ARRAY)
+          @writer.write(:ulong, value.length)
+          value.each do |val|
+            encode(val)
+          end
         end
         
       end
