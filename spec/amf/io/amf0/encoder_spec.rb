@@ -31,6 +31,15 @@ describe RubyAMF::IO::AMF0::Encoder do
       
       test_run(@encoder, data)
     end
+
+    it "should successfully encode booleans" do
+      data = {
+        true        => "\x01\x01",
+        false       => "\x01\x00"
+      }
+      
+      test_run(@encoder, data)
+    end
   end
   
 end
