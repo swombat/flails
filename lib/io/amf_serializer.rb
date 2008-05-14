@@ -251,10 +251,10 @@ module RubyAMF
           num_objects = array.length * 2 + 1
           if ClassMappings.use_value_object_array_collection
             @stream << "\n\a" # AMF3_OBJECT and AMF3_XML
-            write_amf3_string("flex.messaging.io.ArrayCollection")
+            write_amf3_string("com.woobius.api.collections.ValueObjectArrayCollection")
           elsif ClassMappings.use_array_collection
             @stream << "\n\a" # AMF3_OBJECT and AMF3_XML
-            write_amf3_string("com.woobius.api.collections.ValueObjectArrayCollection")
+            write_amf3_string("flex.messaging.io.ArrayCollection")
           end
           @stream << "\t" # represents an amf3 array
           write_amf3_integer(num_objects)
