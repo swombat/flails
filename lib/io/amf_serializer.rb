@@ -249,11 +249,11 @@ module RubyAMF
           @stored_objects << array
           @stored_objects << "placeholder for Array (as opposed to ArrayCollection)" # Flash recognises 2 objects instead of 1 for each VOAC
           num_objects = array.length * 2 + 1
-          if ClassMappings.use_array_collection
+          if ClassMappings.use_value_object_array_collection
             @stream << "\n\a" # AMF3_OBJECT and AMF3_XML
-            #write_amf3_string("flex.messaging.io.ArrayCollection")
-            ## DAN - hack to switch everything over to ValueObjectArrayCollection's
-            ## See MethodGroupHelper.as for second part of hack
+            write_amf3_string("flex.messaging.io.ArrayCollection")
+          elsif ClassMappings.use_array_collection
+            @stream << "\n\a" # AMF3_OBJECT and AMF3_XML
             write_amf3_string("com.woobius.api.collections.ValueObjectArrayCollection")
           end
           @stream << "\t" # represents an amf3 array
