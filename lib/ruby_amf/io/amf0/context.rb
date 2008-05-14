@@ -24,6 +24,10 @@ module RubyAMF
         def get_reference(object)
           @objects.index(object)
         end
+        
+        def has_reference_for?(object)
+          self.get_reference(object) != nil
+        end
 
       end
     end

@@ -64,6 +64,18 @@ describe RubyAMF::IO::AMF0::Context do
         @context.get_reference(expected_contents[index]).should == index
       end
     end
+    
+    describe "has_reference method" do
+      it "should return true when the context contains the test objects" do
+        expected_contents.each do |value|
+          @context.has_reference_for?(value).should == true
+        end
+      end
+      
+      it "should not return true for other values" do
+        @context.has_reference_for?("asdf").should == false
+      end
+    end
   end
   
 end

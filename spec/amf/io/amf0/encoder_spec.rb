@@ -52,6 +52,14 @@ describe RubyAMF::IO::AMF0::Encoder do
       test_run(@encoder, data)
     end
 
+    it "should successfully encode nulls" do
+      data = {
+        nil         => "\x05"
+      }
+      
+      test_run(@encoder, data)
+    end
+
   end
   
 end

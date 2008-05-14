@@ -21,6 +21,7 @@ module RubyAMF
           when TrueClass      : encode_boolean(value)
           when FalseClass     : encode_boolean(value)
           when String         : encode_string(value)
+          when nil            : encode_nil(value)
           end
         end
         
@@ -44,6 +45,11 @@ module RubyAMF
           end
           @writer.write(:string, value)
         end
+        
+        def encode_nil(value=nil)
+          @stream << RubyAMF::IO::AMF0::Types::NULL
+        end
+        
         
       end
     end
