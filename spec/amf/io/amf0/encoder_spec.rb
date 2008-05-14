@@ -1,4 +1,5 @@
 require 'lib/ruby_amf/io/amf0/encoder'
+require 'lib/ruby_amf/io/util/undefined_type'
 
 module AMF0EncoderHelper
   def test_run(encoder, data)
@@ -17,6 +18,7 @@ describe RubyAMF::IO::AMF0::Encoder do
   before(:each) do
     @encoder = RubyAMF::IO::AMF0::Encoder.new    
   end
+  
   
   describe "encoding primitives" do
     it "should successfully encode numbers" do
@@ -40,18 +42,31 @@ describe RubyAMF::IO::AMF0::Encoder do
       
       test_run(@encoder, data)
     end
-
-    it "should successfully encode strings" do
+  end
+  
+    
+  describe "encoding strings" do
+    it "should successfully encode short strings" do
       data = {
         ""          => "\x02\x00\x00",
         "hello"     => "\x02\x00\x05hello",
-        "Καλημέρα"  => "\x02\x00\x10\xce\x9a\xce\xb1\xce\xbb\xce\xb7\xce\xbc\xce\xad\xcf\x81\xce\xb1",
-        "12"*40000  => "\x0c\x00\x01\x38\x80#{'12'*40000}"
+        "Καλημέρα"  => "\x02\x00\x10\xce\x9a\xce\xb1\xce\xbb\xce\xb7\xce\xbc\xce\xad\xcf\x81\xce\xb1"
       }
       
       test_run(@encoder, data)
     end
-
+    
+    it "should successfully encode long strings" do
+      data = {
+        "12"*40000  => "\x0c\x00\x01\x38\x80#{'12'*40000}"
+      }
+      
+      test_run(@encoder, data)      
+    end
+  end
+  
+  
+  describe "encoding special values" do
     it "should successfully encode nulls" do
       data = {
         nil         => "\x05"
@@ -60,6 +75,13 @@ describe RubyAMF::IO::AMF0::Encoder do
       test_run(@encoder, data)
     end
 
+    it "should successfully encode undefined values" do
+      data = {
+        RubyAMF::IO::Util::UndefinedType.new  => "\x06"
+      }
+      
+      test_run(@encoder, data)
+    end
   end
   
 end

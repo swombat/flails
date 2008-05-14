@@ -17,11 +17,12 @@ module RubyAMF
         
         def encode(value)
           case value
-          when Numeric        : encode_number(value)
-          when TrueClass      : encode_boolean(value)
-          when FalseClass     : encode_boolean(value)
-          when String         : encode_string(value)
-          when nil            : encode_nil(value)
+          when Numeric                            : encode_number(value)
+          when TrueClass                          : encode_boolean(value)
+          when FalseClass                         : encode_boolean(value)
+          when String                             : encode_string(value)
+          when nil                                : encode_nil(value)
+          when RubyAMF::IO::Util::UndefinedType   : encode_undefined_type(value)
           end
         end
         
@@ -50,6 +51,9 @@ module RubyAMF
           @stream << RubyAMF::IO::AMF0::Types::NULL
         end
         
+        def encode_undefined_type(value=RubyAMF::IO::Util::UndefinedType)
+          @stream << RubyAMF::IO::AMF0::Types::UNDEFINED
+        end
         
       end
     end
