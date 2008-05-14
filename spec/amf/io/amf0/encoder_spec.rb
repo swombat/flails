@@ -40,6 +40,18 @@ describe RubyAMF::IO::AMF0::Encoder do
       
       test_run(@encoder, data)
     end
+
+    it "should successfully encode strings" do
+      data = {
+        ""          => "\x02\x00\x00",
+        "hello"     => "\x02\x00\x05hello",
+        "Καλημέρα"  => "\x02\x00\x10\xce\x9a\xce\xb1\xce\xbb\xce\xb7\xce\xbc\xce\xad\xcf\x81\xce\xb1",
+        "12"*40000  => "\x0c\x00\x01\x38\x80#{'12'*40000}"
+      }
+      
+      test_run(@encoder, data)
+    end
+
   end
   
 end
