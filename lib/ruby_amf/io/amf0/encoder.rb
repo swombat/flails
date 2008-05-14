@@ -72,10 +72,7 @@ module RubyAMF
             encode(val)
           end
           
-          # Write a null string, this is an optimisation so that we don't
-          # have to waste precious cycles by encoding the string etc.
-          @writer.write(:uchar, 0x00)
-          @writer.write(:uchar, 0x00)
+          @writer.write(:ushort, 0)
           @writer.write(:uchar, RubyAMF::IO::AMF0::Types::OBJECTTERM)
         end
         
