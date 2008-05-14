@@ -1,5 +1,6 @@
 require 'lib/ruby_amf/io/amf0/encoder'
 require 'lib/ruby_amf/io/util/undefined_type'
+require 'lib/flails/app/model/renderable'
 
 module AMF0EncoderHelper
   def test_run(encoder, data)
@@ -9,6 +10,17 @@ module AMF0EncoderHelper
       encoder.encode key
       stream.should == value
     end
+  end
+end
+
+class RenderableObject
+  include Flails::App::Model::Renderable
+  def initialize(attribs={'a'=>'b'}, class_name=nil)
+    @attribs = attribs
+  end
+  
+  def renderable_attributes
+    { 'a' => 'b'}
   end
 end
 
@@ -92,6 +104,14 @@ describe RubyAMF::IO::AMF0::Encoder do
         {'a' => 'b'}        => "\x03\x00\x01\x61\x02\x00\x01\x62\x00\x00\x09"
       }
       
+      test_run(@encoder, data)
+    end
+    
+    it "should successfully encode an untyped Renderable object" do
+      data ={
+        RenderableObject.new  => "\x03\x00\x01\x61\x02\x00\x01\x62\x00\x00\x09"
+      }
+
       test_run(@encoder, data)
     end
   end
