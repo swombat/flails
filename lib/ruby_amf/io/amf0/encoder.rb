@@ -30,32 +30,32 @@ module RubyAMF
         end
         
         def encode_number(value, write_type=true)
-          @stream << RubyAMF::IO::AMF0::Types::NUMBER if write_type
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::NUMBER) if write_type
           @writer.write(:double, value)
         end
         
         def encode_boolean(value, write_type=true)
-          @stream << RubyAMF::IO::AMF0::Types::BOOL if write_type
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::BOOL) if write_type
           @writer.write(:uchar, (value ? 0x01 : 0x00))
         end
         
         def encode_string(value, write_type=true)
           if value.length > 0xffff
-            @stream << RubyAMF::IO::AMF0::Types::LONGSTRING if write_type
+            @writer.write(:uchar, RubyAMF::IO::AMF0::Types::LONGSTRING) if write_type
             @writer.write(:ulong, value.length)
           else
-            @stream << RubyAMF::IO::AMF0::Types::STRING if write_type
+            @writer.write(:uchar, RubyAMF::IO::AMF0::Types::STRING) if write_type
             @writer.write(:ushort, value.length)
           end
           @writer.write(:string, value)
         end
         
         def encode_nil(value=nil)
-          @stream << RubyAMF::IO::AMF0::Types::NULL
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::NULL)
         end
         
         def encode_undefined_type(value=RubyAMF::IO::Util::UndefinedType)
-          @stream << RubyAMF::IO::AMF0::Types::UNDEFINED
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::UNDEFINED)
         end
         
         def encode_hash(value, write_type=true)
@@ -66,7 +66,7 @@ module RubyAMF
           
           @context.add_object(value)
           
-          @stream << RubyAMF::IO::AMF0::Types::OBJECT if write_type
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::OBJECT) if write_type
           value.each do |key, val|
             encode_string(val, false)
             encode(val)
@@ -74,12 +74,13 @@ module RubyAMF
           
           # Write a null string, this is an optimisation so that we don't
           # have to waste precious cycles by encoding the string etc.
-          @stream << "\x00\x00"
-          @stream << RubyAMF::IO::AMF0::Types::OBJECTTERM
+          @writer.write(:uchar, 0x00)
+          @writer.write(:uchar, 0x00)
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::OBJECTTERM)
         end
         
         def encode_reference(value)
-          @stream << RubyAMF::IO::AMF0::Types::REFERENCE
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::REFERENCE)
           @writer.write(:ushort, @context.get_reference(value))
         end
         
