@@ -68,7 +68,7 @@ module RubyAMF
           
           @writer.write(:uchar, RubyAMF::IO::AMF0::Types::OBJECT) if write_type
           value.each do |key, val|
-            encode_string(val, false)
+            encode_string(key, false)
             encode(val)
           end
           

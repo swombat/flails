@@ -88,7 +88,8 @@ describe RubyAMF::IO::AMF0::Encoder do
   describe "encoding objects" do
     it "should successfully encode a hash" do
       data = {
-        {'a' => 'a'}         => "\x03\x00\x01a\x02\x00\x01a\x00\x00\t"
+        {'a' => 'a'}         => "\x03\x00\x01\x61\x02\x00\x01\x61\x00\x00\x09",
+        {'a' => 'b'}         => "\x03\x00\x01\x61\x02\x00\x01\x62\x00\x00\x09"
       }
       
       test_run(@encoder, data)
