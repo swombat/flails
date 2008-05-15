@@ -32,7 +32,6 @@ module RubyAMF
         else
           RequestStore.flex_messaging = false # ensure that array_collection is disabled 
           RubyAMF::Configuration::ClassMappings.use_array_collection = false
-          RubyAMF::Configuration::ClassMappings.use_value_object_array_collection = false
         end
         
         amfbody.set_service_uri_information!
