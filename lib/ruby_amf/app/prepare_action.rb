@@ -12,7 +12,8 @@ module RubyAMF
           case raw_body._explicitType
           when 'flex.messaging.messages.RemotingMessage' #Flex Messaging setup
             RequestStore.flex_messaging = true # only set RequestStore and ClassMappings when its a remoting message, not command message
-            RubyAMF::Configuration::ClassMappings.use_array_collection = !(RubyAMF::Configuration::ClassMappings.use_array_collection==false) # it will only set it to false if the user specifically sets use_array_collection to false
+            # Removed this hackworthy line, there are better ways of defaulting a value?
+            # RubyAMF::Configuration::ClassMappings.use_array_collection = !(RubyAMF::Configuration::ClassMappings.use_array_collection==false) # it will only set it to false if the user specifically sets use_array_collection to false
             amfbody.special_handling = 'RemotingMessage'
             amfbody.value = raw_body['body']
             amfbody.set_meta('clientId', raw_body['clientId'])
