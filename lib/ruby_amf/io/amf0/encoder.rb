@@ -106,7 +106,13 @@ module RubyAMF
           
           @context.add_object(value)
           
-          encode_hash(value.renderable_attributes)
+          if (value.class_name.nil?)
+            encode_hash(value.renderable_attributes)
+          else
+            @writer.write(:uchar, RubyAMF::IO::AMF0::Types::TYPEDOBJECT)
+            encode_string(value.class_name, false)
+            encode_hash(value.renderable_attributes, false)
+          end
         end
         
       end

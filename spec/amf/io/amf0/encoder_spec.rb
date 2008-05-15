@@ -17,10 +17,13 @@ class RenderableObject
   include Flails::App::Model::Renderable
   def initialize(attribs={'a'=>'b'}, class_name=nil)
     @attribs = attribs
+    @class_name = class_name
   end
   
+  attr_reader :class_name
+  
   def renderable_attributes
-    { 'a' => 'b'}
+    @attribs
   end
 end
 
@@ -110,6 +113,14 @@ describe RubyAMF::IO::AMF0::Encoder do
     it "should successfully encode an untyped Renderable object" do
       data ={
         RenderableObject.new  => "\x03\x00\x01\x61\x02\x00\x01\x62\x00\x00\x09"
+      }
+
+      test_run(@encoder, data)
+    end
+
+    it "should successfully encode a typed Renderable object" do
+      data ={
+        RenderableObject.new({'baz' => 'hello'}, "org.pyamf.spam")  => "\x10\x00\x0eorg.pyamf.spam\x00\x03baz\x02\x00\x05hello\x00\x00\t"
       }
 
       test_run(@encoder, data)

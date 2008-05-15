@@ -9,6 +9,11 @@ module Flails
         def renderable_attributes
           {}
         end
+        
+        # The Flex-side class name to be used when rendering
+        def class_name
+          
+        end
       end
     end
   end
