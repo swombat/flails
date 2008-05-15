@@ -17,7 +17,6 @@ module RubyAMF
       @assume_types = false
       @use_ruby_date_time = false
       @use_array_collection = false
-      @use_value_object_array_collection = false
       @check_for_associations = true
       
       # Aryk: I cleaned up how the class variables are called here. It doesnt matter if you use class variables or instance variables on the class level. Check out this simple tutorial
@@ -27,7 +26,7 @@ module RubyAMF
         include RubyAMF::App
         include RubyAMF::Exceptions 
         
-        attr_accessor :ignore_fields, :use_array_collection, :use_value_object_array_collection, :default_mapping_scope,
+        attr_accessor :ignore_fields, :use_array_collection, :default_mapping_scope,
         :force_active_record_ids, :attribute_names, :use_ruby_date_time, :current_mapping_scope, :check_for_associations,
         :translate_case, :assume_types, :hash_key_access  #the rails parameter mapping type
         
