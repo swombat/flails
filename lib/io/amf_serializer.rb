@@ -20,7 +20,6 @@ module RubyAMF
    
       def reset_referencables
         @stored_objects = RBTree.new
-        @stored_objects_lookup = {}
         @stored_strings = {} # hash is way faster than array
         @stored_strings[""] = true # add this in automatically
         @floats_cache = {}
@@ -231,6 +230,7 @@ module RubyAMF
         unless i.nil?
           write_amf3_integer (i << 1)
         else
+          @stored_objects["#{value.class}_#{value.id}"] = @stored_objects.length unless value == {}
           hash = value.is_a?(Hash) ? value : RubyAMF::Util::VoUtil.get_vo_hash_for_outgoing(value)
           not_vo_hash = !hash.is_a?(RubyAMF::Util::VoHash) # is this not a vohash - then doesnt have an _explicitType parameter
           @stream << "\v"
