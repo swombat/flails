@@ -63,60 +63,67 @@ module RubyAMF
         end
       end
             
-      # Aryk: I tried to make this more efficent and clean.
       def self.get_vo_hash_for_outgoing(obj)
-        new_object = RubyAMF::Util::VoHash.new #use VoHash because one day, we might do away with the class Object patching
-        instance_vars = obj.instance_variables
-        if map = ClassMappings.get_vo_mapping_for_ruby_class(obj.class.to_s)
-          if map[:type]=="active_record"
-            attributes_hash = obj.attributes
-            (map[:attributes]||attributes_hash.keys).each do |attr| # need to use dup because sometimes the attr is frozen from the AR attributes hash
-              attr_name = attr
-              attr_name = attr_name.dup.to_camel! if ClassMappings.translate_case # need to do it this way because the string might be frozen if it came from the attributes_hash.keys
-              # new_object[attr_name] = attributes_hash[attr] -- DAN - need to grab real attributes, not cheat!
-              if attributes_hash[attr]
-                new_object[attr_name] = attributes_hash[attr]
-              else
-                new_object[attr_name] = obj.send(attr.to_sym)
-              end
-            end
-            instance_vars = [] # reset the instance_vars for the associations, this way no unwanted instance variables (ie @new_record, @read_only) can get through
-            # Note: if you did not specify associations, it will not show up even if you eager loaded them.
-            if map[:associations] # Aryk: if they opted for assocations, make sure that they are loaded in. This is great for composed_of, since it cannot be included on a find
-              map[:associations].each do |assoc|
-                instance_vars << ("@"+assoc) if obj.send(assoc) # this will make sure they are instantiated and only load it if they have a value.
-              end
-            elsif ClassMappings.check_for_associations
-              instance_vars = obj.instance_variables.reject{|assoc| ["@attributes","@new_record","@read_only"].include?(assoc)}
-            end
-          end
-          new_object._explicitType = map[:actionscript] # Aryk: This only works on the Hash because rubyAMF extended class Object to have this accessor, probably not the best idea, but its already there.   
-          # Tony: There's some duplication in here. Had trouble consolidating the logic though. Ruby skills failed.
-        elsif ClassMappings.assume_types
-          new_object._explicitType = obj.class.to_s
-          if obj.is_a?(ActiveRecord::Base)
-            obj.attributes.keys.each do |key|
-              attr_name = key
-              attr_name = attr_name.dup.to_camel! if ClassMappings.translate_case # need to do it this way because the string might be frozen if it came from the attributes_hash.keys
-              new_object[attr_name] = obj.attributes[key]
-            end
-            instance_vars = []
-            if ClassMappings.check_for_associations
-              instance_vars = obj.instance_variables.reject{|assoc| ["@attributes","@new_record","@read_only"].include?(assoc)}
-            end
-          end
+        vo = RubyAMF::Util::VoHash.new
+        map = ClassMappings.get_vo_mapping_for_ruby_class(obj.class.to_s)
+        map[:attributes].each do |attr_name|
+          vo[attr_name] = obj.send(attr_name.to_sym)
         end
-        instance_vars.each do |var| # this also picks up the eager loaded associations, because association called "has_many_assoc" has an instance variable called "@has_many_assoc"
-          attr_name = var[1..-1]
-          attr_name.to_camel! if ClassMappings.translate_case
-          new_object[attr_name] = obj.instance_variable_get(var)
-        end
-        new_object
-      rescue Exception => e
-        puts e.message
-        puts e.backtrace
-        raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::VO_ERROR, e.message)
+        vo._explicitType = map[:actionscript]
+        return vo
       end
+      
+      #   #=========== end
+      #   new_object = RubyAMF::Util::VoHash.new #use VoHash because one day, we might do away with the class Object patching
+      #   instance_vars = obj.instance_variables
+      #   if map = ClassMappings.get_vo_mapping_for_ruby_class(obj.class.to_s)
+      #     if (map[:type] != 'active_record')
+      #       RAILS_DEFAULT_LOGGER.debug "===================================== not AR: #{map[:type]}"
+      #     end
+      #     if map[:type]=="active_record"
+      #       (map[:attributes]).each do |attr_name| # need to use dup because sometimes the attr is frozen from the AR attributes hash
+      #         new_object[attr_name] = obj.send(attr_name.to_sym)
+      #       end
+      #       new_object._explicitType = map[:actionscript] # Aryk: This only works on the Hash because rubyAMF extended class Object to have this accessor, probably not the best idea, but its already there.   
+      #       return new_object
+      #       instance_vars = [] # reset the instance_vars for the associations, this way no unwanted instance variables (ie @new_record, @read_only) can get through
+      #       # Note: if you did not specify associations, it will not show up even if you eager loaded them.
+      #       if map[:associations] # Aryk: if they opted for assocations, make sure that they are loaded in. This is great for composed_of, since it cannot be included on a find
+      #         map[:associations].each do |assoc|
+      #           instance_vars << ("@"+assoc) if obj.send(assoc) # this will make sure they are instantiated and only load it if they have a value.
+      #         end
+      #       elsif ClassMappings.check_for_associations
+      #         instance_vars = obj.instance_variables.reject{|assoc| ["@attributes","@new_record","@read_only"].include?(assoc)}
+      #       end
+      #     end
+      #     new_object._explicitType = map[:actionscript] # Aryk: This only works on the Hash because rubyAMF extended class Object to have this accessor, probably not the best idea, but its already there.   
+      #     # Tony: There's some duplication in here. Had trouble consolidating the logic though. Ruby skills failed.
+      #   elsif ClassMappings.assume_types
+      #     RAILS_DEFAULT_LOGGER.debug "===================================== not AR: #{obj.inspect}"
+      #     new_object._explicitType = obj.class.to_s
+      #     if obj.is_a?(ActiveRecord::Base)
+      #       obj.attributes.keys.each do |key|
+      #         attr_name = key
+      #         attr_name = attr_name.dup.to_camel! if ClassMappings.translate_case # need to do it this way because the string might be frozen if it came from the attributes_hash.keys
+      #         new_object[attr_name] = obj.attributes[key]
+      #       end
+      #       instance_vars = []
+      #       if ClassMappings.check_for_associations
+      #         instance_vars = obj.instance_variables.reject{|assoc| ["@attributes","@new_record","@read_only"].include?(assoc)}
+      #       end
+      #     end
+      #   end
+      #   instance_vars.each do |var| # this also picks up the eager loaded associations, because association called "has_many_assoc" has an instance variable called "@has_many_assoc"
+      #     attr_name = var[1..-1]
+      #     attr_name.to_camel! if ClassMappings.translate_case
+      #     new_object[attr_name] = obj.instance_variable_get(var)
+      #   end
+      #   new_object
+      # rescue Exception => e
+      #   puts e.message
+      #   puts e.backtrace
+      #   raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::VO_ERROR, e.message)
+      # end
     end
   end
 end

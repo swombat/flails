@@ -1,3 +1,5 @@
+require 'rbtree'
+
 module RubyAMF
   module IO
     class AMFSerializer
@@ -17,12 +19,17 @@ module RubyAMF
       end
    
       def reset_referencables
-        @stored_objects = []
+        @stored_objects = RBTree.new
+        @stored_objects_lookup = {}
         @stored_strings = {} # hash is way faster than array
         @stored_strings[""] = true # add this in automatically
         @floats_cache = {}
         @write_amf3_integer_results = {} # cache the integers
         @current_strings_index = 0
+      end
+      
+      def logger
+        RAILS_DEFAULT_LOGGER
       end
    
       def run
@@ -45,6 +52,8 @@ module RubyAMF
           #write the header data
           write(@header.value)
         end
+      
+        @t = {}
       
         #num bodies
         @body_count = @amfobj.num_body
@@ -218,36 +227,47 @@ module RubyAMF
       end
     
       def write_amf3_object(value)
-        hash = value.is_a?(Hash) ? value : RubyAMF::Util::VoUtil.get_vo_hash_for_outgoing(value)
-        not_vo_hash = !hash.is_a?(RubyAMF::Util::VoHash) # is this not a vohash - then doesnt have an _explicitType parameter
+        @t[value] = Time.now.to_f
+        logger.debug "#{value.object_id} =                   [[[[start]]]] #{value.inspect}"
+        
         @stream << "\n" # represents an amf3 object and dynamic object
         # Check if this object has already been written (for circular references)
-        i = @stored_objects.index(value)
+        logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[preIndex]]]]"
+        i = @stored_objects["#{value.class}_#{value.id}"]
         unless i.nil?
           write_amf3_integer (i << 1)
         else
+          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[preHash]]]]"
+          hash = value.is_a?(Hash) ? value : RubyAMF::Util::VoUtil.get_vo_hash_for_outgoing(value)
+          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[gotHash]]]]"
+          not_vo_hash = !hash.is_a?(RubyAMF::Util::VoHash) # is this not a vohash - then doesnt have an _explicitType parameter
+          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[noref]]]]"
           @stream << "\v"
-          @stored_objects << value unless value == {}
+          @stored_objects["#{value.class}_#{value.id}"] = @stored_objects.length unless value == {}
           not_vo_hash || !hash._explicitType ? (@stream << "\001") : write_amf3_string(hash._explicitType)
+          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[startAttr]]]]"
           hash.each do |attr, attvalue| # Aryk: no need to remove any "_explicitType" or "rmember" key since they werent added as keys
-            if not_vo_hash # then that means that the attr might not be symbols and it hasn't gone through camelizing if thats needed
-              attr = attr.to_s.dup # need this just in case its frozen
-              attr.to_camel! if ClassMappings.translate_case 
-            end
+            # if not_vo_hash # then that means that the attr might not be symbols and it hasn't gone through camelizing if thats needed
+            #   attr = attr.to_s.dup # need this just in case its frozen
+            #   attr.to_camel! if ClassMappings.translate_case 
+            # end
             write_amf3_string(attr) 
+            logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[writeAttr(#{attvalue})]]]]"
             attvalue ? write_amf3(attvalue) : (@stream << "\001") # represents an amf3 null
           end
+          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[endAttr]]]]"
           @stream << "\001" # represents an amf3 empty string to close open object
         end
+        logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[done]]]]"
       end
   
       def write_amf3_array(array)
-        i = @stored_objects.index(array)
+        i = @stored_objects.index(array.object_id.to_s)
         # unless i.nil?
         #   write_amf3_integer (i << 1)
         # else
-          @stored_objects << array
-          @stored_objects << "placeholder for Array (as opposed to ArrayCollection)" # Flash recognises 2 objects instead of 1 for each VOAC
+          @stored_objects[array.object_id.to_s] = @stored_objects.length
+          @stored_objects["placeholder for Array (as opposed to ArrayCollection)"] = @stored_objects.length # Flash recognises 2 objects instead of 1 for each VOAC
           num_objects = array.length * 2 + 1
           if ClassMappings.use_array_collection == true
             @stream << "\n\a" # AMF3_OBJECT and AMF3_XML
@@ -263,24 +283,26 @@ module RubyAMF
         # end
       end
   
-      def write_amf3_date(datetime_arg) # Aryk: Dates will almost never be the same, so turn off the storing_objects
-        datetime = datetime_arg.dup # DAN - datetime_arg is often frozen!? This is the best way to 'unfreeze' it
-        i = @stored_objects.index(datetime)
-        unless i.nil?
-          write_amf3_integer (i << 1)
-        else
-          @stored_objects << datetime
+      def write_amf3_date(datetime) # Aryk: Dates will almost never be the same, so turn off the storing_objects
+        # datetime = datetime_arg.dup # DAN - datetime_arg is often frozen!? This is the best way to 'unfreeze' it
+        # i = @stored_objects.index(datetime.object_id.to_s)
+        # unless i.nil?
+        #   write_amf3_integer (i << 1)
+        # else
+          @stored_objects[datetime.object_id.to_s] = @stored_objects.length
           write_amf3_integer(1)
           seconds = if datetime.is_a?(Time)
+            logger.debug "==========TIME"
             datetime.utc unless datetime.utc?
             datetime.to_f
           elsif datetime.is_a?(Date) # this also handles the case for DateTime
+            logger.debug "==========DATE"
             datetime.strftime("%s").to_i
             # datetime = Time.gm( datetime.year, datetime.month, datetime.day )
             # datetime = Time.gm( datetime.year, datetime.month, datetime.day, datetime.hour, datetime.min, datetime.sec )      
           end
           write_double( (seconds*1000).to_i ) # used to be total_milliseconds = datetime.to_i * 1000 + ( datetime.usec/1000 )
-        end
+        # end
       end
   
       def write_amf3_xml(value)
