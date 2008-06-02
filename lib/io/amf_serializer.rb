@@ -28,10 +28,6 @@ module RubyAMF
         @current_strings_index = 0
       end
       
-      def logger
-        RAILS_DEFAULT_LOGGER
-      end
-   
       def run
         #write the amf version
         write_int16_network(3)
@@ -228,37 +224,27 @@ module RubyAMF
     
       def write_amf3_object(value)
         @t[value] = Time.now.to_f
-        logger.debug "#{value.object_id} =                   [[[[start]]]] #{value.inspect}"
         
         @stream << "\n" # represents an amf3 object and dynamic object
         # Check if this object has already been written (for circular references)
-        logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[preIndex]]]]"
         i = @stored_objects["#{value.class}_#{value.id}"]
         unless i.nil?
           write_amf3_integer (i << 1)
         else
-          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[preHash]]]]"
           hash = value.is_a?(Hash) ? value : RubyAMF::Util::VoUtil.get_vo_hash_for_outgoing(value)
-          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[gotHash]]]]"
           not_vo_hash = !hash.is_a?(RubyAMF::Util::VoHash) # is this not a vohash - then doesnt have an _explicitType parameter
-          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[noref]]]]"
           @stream << "\v"
-          @stored_objects["#{value.class}_#{value.id}"] = @stored_objects.length unless value == {}
           not_vo_hash || !hash._explicitType ? (@stream << "\001") : write_amf3_string(hash._explicitType)
-          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[startAttr]]]]"
           hash.each do |attr, attvalue| # Aryk: no need to remove any "_explicitType" or "rmember" key since they werent added as keys
             # if not_vo_hash # then that means that the attr might not be symbols and it hasn't gone through camelizing if thats needed
             #   attr = attr.to_s.dup # need this just in case its frozen
             #   attr.to_camel! if ClassMappings.translate_case 
             # end
             write_amf3_string(attr) 
-            logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[writeAttr(#{attvalue})]]]]"
             attvalue ? write_amf3(attvalue) : (@stream << "\001") # represents an amf3 null
           end
-          logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[endAttr]]]]"
           @stream << "\001" # represents an amf3 empty string to close open object
         end
-        logger.debug "#{value.object_id} = #{Time.now.to_f - @t[value]} [[[[done]]]]"
       end
   
       def write_amf3_array(array)
@@ -292,11 +278,9 @@ module RubyAMF
           @stored_objects[datetime.object_id.to_s] = @stored_objects.length
           write_amf3_integer(1)
           seconds = if datetime.is_a?(Time)
-            logger.debug "==========TIME"
             datetime.utc unless datetime.utc?
             datetime.to_f
           elsif datetime.is_a?(Date) # this also handles the case for DateTime
-            logger.debug "==========DATE"
             datetime.strftime("%s").to_i
             # datetime = Time.gm( datetime.year, datetime.month, datetime.day )
             # datetime = Time.gm( datetime.year, datetime.month, datetime.day, datetime.hour, datetime.min, datetime.sec )      
