@@ -278,7 +278,7 @@ module RubyAMF
           @stored_objects[datetime.object_id.to_s] = @stored_objects.length
           write_amf3_integer(1)
           seconds = if datetime.is_a?(Time)
-            datetime.utc unless datetime.utc?
+            datetime = datetime.dup.utc unless datetime.utc?
             datetime.to_f
           elsif datetime.is_a?(Date) # this also handles the case for DateTime
             datetime.strftime("%s").to_i
