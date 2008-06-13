@@ -248,12 +248,12 @@ module RubyAMF
       end
   
       def write_amf3_array(array)
-        i = @stored_objects.index(array.object_id.to_s)
+        # i = @stored_objects.index(array.object_id.to_s)
         # unless i.nil?
         #   write_amf3_integer (i << 1)
         # else
-          @stored_objects[array.object_id.to_s] = @stored_objects.length
-          @stored_objects["placeholder for Array (as opposed to ArrayCollection)"] = @stored_objects.length # Flash recognises 2 objects instead of 1 for each VOAC
+          @stored_objects["placeholder #{Time.now} #{rand(999999)}"] = @stored_objects.length
+          @stored_objects["placeholder #{Time.now} #{rand(999999)}"] = @stored_objects.length # Flash recognises 2 objects instead of 1 for each VOAC
           num_objects = array.length * 2 + 1
           if ClassMappings.use_array_collection == true
             @stream << "\n\a" # AMF3_OBJECT and AMF3_XML
@@ -275,7 +275,7 @@ module RubyAMF
         # unless i.nil?
         #   write_amf3_integer (i << 1)
         # else
-          @stored_objects[datetime.object_id.to_s] = @stored_objects.length
+          @stored_objects["placeholder #{Time.now} #{rand(999999)}"] = @stored_objects.length
           write_amf3_integer(1)
           seconds = if datetime.is_a?(Time)
             datetime = datetime.dup.utc unless datetime.utc?
