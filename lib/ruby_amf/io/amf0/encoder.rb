@@ -1,3 +1,5 @@
+require 'activesupport'
+
 module RubyAMF
   module IO
     module AMF0
@@ -32,6 +34,9 @@ module RubyAMF
           when Hash                               : encode_hash             value, include_type
           when Array                              : encode_array            value, include_type
           when Flails::App::Model::Renderable     : encode_renderable       value, include_type
+          when Time                               : encode_date             value, include_type
+          when Date                               : encode_date             value.to_time, include_type
+          when DateTime                           : encode_date             value.to_time, include_type
           end
         end
         
@@ -116,7 +121,19 @@ module RubyAMF
             encode(val)
           end
         end
-                
+
+        #=====================
+        # Dates
+        def encode_date(value, include_type=true)
+          return if try_reference(value)
+          
+          timezone = 0
+          
+          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::DATE) if include_type
+          @writer.write(:double, value.to_f * 1000.0)
+          @writer.write(:ushort, timezone)
+        end
+        
       private
         # Tries the reference and returns true if the reference was encoded. Otherwise adds
         # the reference and returns false. This code was extracted to DRY out the encoding methods.
@@ -128,8 +145,7 @@ module RubyAMF
             @context.add_object(value)
             return false
           end
-        end
-
+        end        
       end
     end
   end

@@ -1,3 +1,4 @@
+require 'date'
 require 'lib/ruby_amf/io/amf0/encoder'
 require 'lib/ruby_amf/io/util/undefined_type'
 require 'lib/flails/app/model/renderable'
@@ -137,4 +138,34 @@ describe RubyAMF::IO::AMF0::Encoder do
       test_run(@encoder, data)      
     end
   end
+
+  describe "encoding dates" do
+    it "should successfully encode Date objects" do
+      data = {
+        Date.new(2003, 12, 1)   => "\x0b\x42\x6f\x25\xe2\xb2\x80\x00\x00\x00\x00"
+      }
+      
+      test_run(@encoder, data)      
+    end
+    
+    it "should successfully encode Time objects" do
+      data = {
+        Time.utc(2003, 12, 1)               => "\x0b\x42\x6f\x25\xe2\xb2\x80\x00\x00\x00\x00",
+        Time.utc(2005, 3, 18, 1, 58, 31)    => "\x0b\x42\x70\x2b\x36\x21\x15\x80\x00\x00\x00"
+      }
+      
+      test_run(@encoder, data)            
+    end
+
+    it "should successfully encode DateTime objects" do
+      data = {
+        DateTime.parse("2003-12-1")         => "\x0b\x42\x6f\x25\xe2\xb2\x80\x00\x00\x00\x00",
+        DateTime.parse("2005-3-18 1:58:31") => "\x0b\x42\x70\x2b\x36\x21\x15\x80\x00\x00\x00"
+      }
+      
+      test_run(@encoder, data)            
+    end
+
+  end
+
 end
