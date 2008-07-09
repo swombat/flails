@@ -121,7 +121,7 @@ describe RubyAMF::IO::AMF0::Encoder do
 
     it "should successfully encode a typed Renderable object" do
       data ={
-        RenderableObject.new({'baz' => 'hello'}, "org.pyamf.spam")  => "\x10\x00\x0eorg.pyamf.spam\x00\x03baz\x02\x00\x05hello\x00\x00\t"
+        RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")  => "\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\t"
       }
 
       test_run(@encoder, data)
