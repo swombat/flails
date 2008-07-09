@@ -166,6 +166,8 @@ describe RubyAMF::IO::AMF0::Encoder do
       test_run(@encoder, data)            
     end
 
+    # @TODO: XML Support
+
   end
 
 end
