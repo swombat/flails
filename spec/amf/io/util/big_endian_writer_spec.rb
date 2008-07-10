@@ -1,4 +1,4 @@
-require 'lib/ruby_amf/io/util/big_endian_writer'
+require 'lib/flails/io/util/big_endian_writer'
 
 module BigEndianWriterHelper
   def test_run(writer, data, method)
@@ -11,11 +11,11 @@ module BigEndianWriterHelper
   end
 end
 
-describe RubyAMF::IO::Util::BigEndianWriter do
+describe Flails::IO::Util::BigEndianWriter do
   include BigEndianWriterHelper
   
   before(:each) do
-    @writer = RubyAMF::IO::Util::BigEndianWriter.new
+    @writer = Flails::IO::Util::BigEndianWriter.new
   end
   
   describe "writing single bytes" do

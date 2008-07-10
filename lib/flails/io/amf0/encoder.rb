@@ -1,6 +1,6 @@
 require 'activesupport'
 
-module RubyAMF
+module Flails
   module IO
     module AMF0
       class Encoder
@@ -11,14 +11,14 @@ module RubyAMF
         # Initialization and parameters
         def initialize(stream="")
           @stream   = stream
-          @writer   = RubyAMF::IO::Util::BigEndianWriter.new(@stream)
-          @context  = RubyAMF::IO::AMF0::Context.new
+          @writer   = Flails::IO::Util::BigEndianWriter.new(@stream)
+          @context  = Flails::IO::AMF0::Context.new
         end
         
         def stream=(stream)
           @stream = stream
           @writer.stream = @stream
-          @context  = RubyAMF::IO::AMF0::Context.new
+          @context  = Flails::IO::AMF0::Context.new
         end
         
         #=====================
@@ -30,7 +30,7 @@ module RubyAMF
           when FalseClass                         : encode_boolean          value, include_type
           when String                             : encode_string           value, include_type
           when nil                                : encode_nil
-          when RubyAMF::IO::Util::UndefinedType   : encode_undefined_type
+          when Flails::IO::Util::UndefinedType   : encode_undefined_type
           when Hash                               : encode_hash             value, include_type
           when Array                              : encode_array            value, include_type
           when Flails::App::Model::Renderable     : encode_renderable       value, include_type
@@ -43,12 +43,12 @@ module RubyAMF
         #=====================
         # Primitives
         def encode_number(value, include_type=true)
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::NUMBER) if include_type
+          @writer.write(:uchar, Flails::IO::AMF0::Types::NUMBER) if include_type
           @writer.write(:double, value)
         end
         
         def encode_boolean(value, include_type=true)
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::BOOL) if include_type
+          @writer.write(:uchar, Flails::IO::AMF0::Types::BOOL) if include_type
           @writer.write(:uchar, (value ? 0x01 : 0x00))
         end
         
@@ -56,10 +56,10 @@ module RubyAMF
         # Strings
         def encode_string(value, include_type=true)
           if value.length > 0xffff
-            @writer.write(:uchar, RubyAMF::IO::AMF0::Types::LONGSTRING) if include_type
+            @writer.write(:uchar, Flails::IO::AMF0::Types::LONGSTRING) if include_type
             @writer.write(:ulong, value.length)
           else
-            @writer.write(:uchar, RubyAMF::IO::AMF0::Types::STRING) if include_type
+            @writer.write(:uchar, Flails::IO::AMF0::Types::STRING) if include_type
             @writer.write(:ushort, value.length)
           end
           @writer.write(:string, value)
@@ -68,17 +68,17 @@ module RubyAMF
         #=====================
         # Special values
         def encode_nil(value=nil)
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::NULL)
+          @writer.write(:uchar, Flails::IO::AMF0::Types::NULL)
         end
         
-        def encode_undefined_type(value=RubyAMF::IO::Util::UndefinedType)
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::UNDEFINED)
+        def encode_undefined_type(value=Flails::IO::Util::UndefinedType)
+          @writer.write(:uchar, Flails::IO::AMF0::Types::UNDEFINED)
         end
         
         #=====================
         # References
         def encode_reference(value)
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::REFERENCE)
+          @writer.write(:uchar, Flails::IO::AMF0::Types::REFERENCE)
           @writer.write(:ushort, @context.get_reference(value))
         end
 
@@ -87,23 +87,23 @@ module RubyAMF
         def encode_hash(value, include_type=true)
           return if try_reference(value)
           
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::OBJECT) if include_type
+          @writer.write(:uchar, Flails::IO::AMF0::Types::OBJECT) if include_type
           value.each do |key, val|
             encode_string(key, false)
             encode(val)
           end
           
           @writer.write(:ushort, 0)
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::OBJECTTERM)
+          @writer.write(:uchar, Flails::IO::AMF0::Types::OBJECTTERM)
         end
         
         def encode_renderable(value, include_type=true)
           return if try_reference(value)
           
           if (value.class_name.nil?)
-            @writer.write(:uchar, RubyAMF::IO::AMF0::Types::OBJECT) if include_type
+            @writer.write(:uchar, Flails::IO::AMF0::Types::OBJECT) if include_type
           else
-            @writer.write(:uchar, RubyAMF::IO::AMF0::Types::TYPEDOBJECT) if include_type
+            @writer.write(:uchar, Flails::IO::AMF0::Types::TYPEDOBJECT) if include_type
             encode_string(value.class_name, false)
           end
 
@@ -115,7 +115,7 @@ module RubyAMF
         def encode_array(value, include_type=true)
           return if try_reference(value)
           
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::ARRAY) if include_type
+          @writer.write(:uchar, Flails::IO::AMF0::Types::ARRAY) if include_type
           @writer.write(:ulong, value.length)
           value.each do |val|
             encode(val)
@@ -129,7 +129,7 @@ module RubyAMF
           
           timezone = 0
           
-          @writer.write(:uchar, RubyAMF::IO::AMF0::Types::DATE) if include_type
+          @writer.write(:uchar, Flails::IO::AMF0::Types::DATE) if include_type
           @writer.write(:double, value.to_f * 1000.0)
           @writer.write(:ushort, timezone)
         end

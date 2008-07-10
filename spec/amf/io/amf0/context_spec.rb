@@ -1,4 +1,4 @@
-require 'lib/ruby_amf/io/amf0/context'
+require 'lib/flails/io/amf0/context'
 
 module AMF0ContextHelper
   def add_objects(context)
@@ -14,11 +14,11 @@ module AMF0ContextHelper
   end
 end
 
-describe RubyAMF::IO::AMF0::Context do
+describe Flails::IO::AMF0::Context do
   include AMF0ContextHelper
 
   before(:each) do
-    @context = RubyAMF::IO::AMF0::Context.new
+    @context = Flails::IO::AMF0::Context.new
   end
 
   describe "new context" do    

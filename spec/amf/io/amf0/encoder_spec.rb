@@ -1,6 +1,6 @@
 require 'date'
-require 'lib/ruby_amf/io/amf0/encoder'
-require 'lib/ruby_amf/io/util/undefined_type'
+require 'lib/flails/io/amf0/encoder'
+require 'lib/flails/io/util/undefined_type'
 require 'lib/flails/app/model/renderable'
 
 module AMF0EncoderHelper
@@ -28,11 +28,11 @@ class RenderableObject
   end
 end
 
-describe RubyAMF::IO::AMF0::Encoder do
+describe Flails::IO::AMF0::Encoder do
   include AMF0EncoderHelper
   
   before(:each) do
-    @encoder = RubyAMF::IO::AMF0::Encoder.new    
+    @encoder = Flails::IO::AMF0::Encoder.new    
   end
   
   
@@ -93,7 +93,7 @@ describe RubyAMF::IO::AMF0::Encoder do
 
     it "should successfully encode undefined values" do
       data = {
-        RubyAMF::IO::Util::UndefinedType.new  => "\x06"
+        Flails::IO::Util::UndefinedType.new  => "\x06"
       }
       
       test_run(@encoder, data)

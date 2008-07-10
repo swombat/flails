@@ -1,4 +1,4 @@
-module RubyAMF
+module Flails
   module IO
     module Util
       # This BinaryEncoder is BigEndian (aka NetworkEndian). It does not support LittleEndian encoding,

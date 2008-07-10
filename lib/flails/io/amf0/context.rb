@@ -1,4 +1,4 @@
-module RubyAMF
+module Flails
   module IO
     module AMF0
       class Context
