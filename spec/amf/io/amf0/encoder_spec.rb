@@ -121,7 +121,10 @@ describe Flails::IO::AMF0::Encoder do
 
     it "should successfully encode a typed Renderable object" do
       data ={
-        RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")  => "\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\x09"
+        RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")  => "\x10\x00\x0forg.flails.spam" + # object enclosure with type
+                                                                          "\x00\x03baz" + # first attribute name
+                                                                            "\x02\x00\x05hello" + # first attribute value
+                                                                          "\x00\x00\x09" # object termination
       }
 
       test_run(@encoder, data)
@@ -145,7 +148,10 @@ describe Flails::IO::AMF0::Encoder do
     it "should successfully encode an array" do
       data = {
         []                  => "\x0a\x00\x00\x00\x00",
-        [1, 2, 3]           => "\x0a\x00\x00\x00\x03\x00\x3f\xf0\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x00\x40\x08\x00\x00\x00\x00\x00\x00"
+        [1, 2, 3]           => "\x0a\x00\x00\x00\x03" + # array enclosure
+                                  "\x00\x3f\xf0\x00\x00\x00\x00\x00\x00" + # 1
+                                  "\x00\x40\x00\x00\x00\x00\x00\x00\x00" + # 2
+                                  "\x00\x40\x08\x00\x00\x00\x00\x00\x00" # 3        
       }
       
       test_run(@encoder, data)      
@@ -156,22 +162,44 @@ describe Flails::IO::AMF0::Encoder do
       arr2 = ["hello", "bar", "baz"]
       data = {
         [arr1, arr1]                  => "\x0a\x00\x00\x00\x02" + # enclosing array
-                                         "\x0a\x00\x00\x00\x03\x00\x3f\xf0\x00\x00\x00\x00\x00\x00\x00\x40" + # arr1
-                                         "\x00\x00\x00\x00\x00\x00\x00\x00\x40\x08\x00\x00\x00\x00\x00\x00" +
-                                         "\x07\x00\x01", # ref to arr1
+                                            "\x0a\x00\x00\x00\x03" + # arr1 enclosure
+                                              "\x00\x3f\xf0\x00\x00\x00\x00\x00\x00" + # 1
+                                              "\x00\x40\x00\x00\x00\x00\x00\x00\x00" + # 2
+                                              "\x00\x40\x08\x00\x00\x00\x00\x00\x00" + # 3
+                                            "\x07\x00\x01", # ref to arr1
         [arr1, arr2, arr1, arr2]      => "\x0a\x00\x00\x00\x04" + # enclosing array
-                                         "\x0a\x00\x00\x00\x03\x00\x3f\xf0\x00\x00\x00\x00\x00\x00\x00\x40" + # arr1
-                                         "\x00\x00\x00\x00\x00\x00\x00\x00\x40\x08\x00\x00\x00\x00\x00\x00" +
-                                         "\x0a\x00\x00\x00\x03\x02\x00\x05hello\x02\x00\x03bar\x02\x00\x03baz" + # arr2
-                                         "\x07\x00\x01\x07\x00\x02", # refs to arr1, arr2
-      }                                                                  
+                                            "\x0a\x00\x00\x00\x03" + # arr1 enclosure
+                                              "\x00\x3f\xf0\x00\x00\x00\x00\x00\x00" + # 1
+                                              "\x00\x40\x00\x00\x00\x00\x00\x00\x00" + # 2
+                                              "\x00\x40\x08\x00\x00\x00\x00\x00\x00" + # 3
+                                            "\x0a\x00\x00\x00\x03" + # arr2 enclosure
+                                              "\x02\x00\x05hello" + # hello
+                                              "\x02\x00\x03bar" + # bar
+                                              "\x02\x00\x03baz" + # baz
+                                            "\x07\x00\x01\x07\x00\x02" # refs to arr1, arr2
+      }
 
       test_run(@encoder, data)      
     end    
   end
   
   describe "encoding mixed objects" do
-    it "should use references correctly for mixed objects"
+    it "should use references correctly for mixed objects with circular references" do
+      arr1 = [1, 2, 3]
+      obj1 = RenderableObject.new({'baz' => arr1}, "org.flails.spam")
+      arr1[1] = obj1
+      data = {
+        arr1 => "\x0a\x00\x00\x00\x03" + # arr1 enclosure
+                  "\x00\x3f\xf0\x00\x00\x00\x00\x00\x00" + # 1
+                  "\x10\x00\x0forg.flails.spam" + # obj1 enclosure with type
+                    "\x00\x03baz" + # first attribute name
+                      "\x07\x00\x00" + # first attribute value (ref to arr1)
+                    "\x00\x00\x09" + # object termination
+                  "\x00\x40\x08\x00\x00\x00\x00\x00\x00" # 3
+      }
+      
+      test_run(@encoder, data)      
+    end
   end
 
   describe "encoding dates" do
