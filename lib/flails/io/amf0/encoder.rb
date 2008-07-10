@@ -85,7 +85,7 @@ module Flails
         #=====================
         # Objects
         def encode_hash(value, include_type=true)
-          return if try_reference(value)
+          return if try_reference(value) if include_type
           
           @writer.write(:uchar, Flails::IO::AMF0::Types::OBJECT) if include_type
           value.each do |key, val|
@@ -98,7 +98,7 @@ module Flails
         end
         
         def encode_renderable(value, include_type=true)
-          return if try_reference(value)
+          return if try_reference(value) if include_type
           
           if (value.class_name.nil?)
             @writer.write(:uchar, Flails::IO::AMF0::Types::OBJECT) if include_type
@@ -113,7 +113,7 @@ module Flails
         #=====================
         # Arrays
         def encode_array(value, include_type=true)
-          return if try_reference(value)
+          return if try_reference(value) if include_type
           
           @writer.write(:uchar, Flails::IO::AMF0::Types::ARRAY) if include_type
           @writer.write(:ulong, value.length)
@@ -125,8 +125,6 @@ module Flails
         #=====================
         # Dates
         def encode_date(value, include_type=true)
-          return if try_reference(value)
-          
           timezone = 0
           
           @writer.write(:uchar, Flails::IO::AMF0::Types::DATE) if include_type

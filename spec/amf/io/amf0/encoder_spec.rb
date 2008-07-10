@@ -121,11 +121,24 @@ describe Flails::IO::AMF0::Encoder do
 
     it "should successfully encode a typed Renderable object" do
       data ={
-        RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")  => "\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\t"
+        RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")  => "\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\x09"
       }
 
       test_run(@encoder, data)
     end
+    
+    it "should use references" do
+      obj1 = RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")
+      obj2 = RenderableObject.new({'bar' => 'hello'}, "org.flails.spam")
+      data ={
+        [obj1, obj1, obj1]        => "\x0a\x00\x00\x00\x03\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\x09\x07\x00\x01\x07\x00\x01",
+        [obj1, obj2, obj1, obj2]  => "\x0a\x00\x00\x00\x04\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\x09" +
+                                     "\x10\x00\x0forg.flails.spam\x00\x03bar\x02\x00\x05hello\x00\x00\x09\x07\x00\x01\x07\x00\x02"
+      }
+      
+      test_run(@encoder, data)
+    end
+    
   end
   
   describe "encoding arrays" do
@@ -165,9 +178,8 @@ describe Flails::IO::AMF0::Encoder do
       
       test_run(@encoder, data)            
     end
-
-    # @TODO: XML Support
-
   end
+
+  # @TODO: XML Support
 
 end
