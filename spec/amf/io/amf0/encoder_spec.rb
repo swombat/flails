@@ -150,6 +150,28 @@ describe Flails::IO::AMF0::Encoder do
       
       test_run(@encoder, data)      
     end
+    
+    it "should use references" do
+      arr1 = [1, 2, 3]
+      arr2 = ["hello", "bar", "baz"]
+      data = {
+        [arr1, arr1]                  => "\x0a\x00\x00\x00\x02" + # enclosing array
+                                         "\x0a\x00\x00\x00\x03\x00\x3f\xf0\x00\x00\x00\x00\x00\x00\x00\x40" + # arr1
+                                         "\x00\x00\x00\x00\x00\x00\x00\x00\x40\x08\x00\x00\x00\x00\x00\x00" +
+                                         "\x07\x00\x01", # ref to arr1
+        [arr1, arr2, arr1, arr2]      => "\x0a\x00\x00\x00\x04" + # enclosing array
+                                         "\x0a\x00\x00\x00\x03\x00\x3f\xf0\x00\x00\x00\x00\x00\x00\x00\x40" + # arr1
+                                         "\x00\x00\x00\x00\x00\x00\x00\x00\x40\x08\x00\x00\x00\x00\x00\x00" +
+                                         "\x0a\x00\x00\x00\x03\x02\x00\x05hello\x02\x00\x03bar\x02\x00\x03baz" + # arr2
+                                         "\x07\x00\x01\x07\x00\x02", # refs to arr1, arr2
+      }                                                                  
+
+      test_run(@encoder, data)      
+    end    
+  end
+  
+  describe "encoding mixed objects" do
+    it "should use references correctly for mixed objects"
   end
 
   describe "encoding dates" do
