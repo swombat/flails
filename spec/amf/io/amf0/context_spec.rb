@@ -1,3 +1,4 @@
+require 'lib/flails/io/util/generic_context'
 require 'lib/flails/io/amf0/context'
 
 module AMF0ContextHelper
