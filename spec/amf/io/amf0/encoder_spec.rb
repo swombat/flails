@@ -1,35 +1,8 @@
 require 'date'
-require 'lib/flails/io/amf0/encoder'
-require 'lib/flails/io/util/undefined_type'
-require 'lib/flails/app/model/renderable'
-
-module AMF0EncoderHelper
-  def test_run(encoder, data)
-    data.each do |key, value|
-      stream = ""
-      encoder.stream = stream
-      encoder.encode key
-      stream.should == value
-    end
-  end
-end
-
-class RenderableObject
-  include Flails::App::Model::Renderable
-  def initialize(attribs={'a'=>'b'}, class_name=nil)
-    @attribs = attribs
-    @class_name = class_name
-  end
-  
-  attr_reader :class_name
-  
-  def renderable_attributes
-    @attribs
-  end
-end
+require 'spec/spec_helper'
 
 describe Flails::IO::AMF0::Encoder do
-  include AMF0EncoderHelper
+  include AMFEncoderHelper
   
   before(:each) do
     @encoder = Flails::IO::AMF0::Encoder.new    

@@ -30,7 +30,7 @@ module Flails
           when FalseClass                         : encode_boolean          value, include_type
           when String                             : encode_string           value, include_type
           when nil                                : encode_nil
-          when Flails::IO::Util::UndefinedType   : encode_undefined_type
+          when Flails::IO::Util::UndefinedType    : encode_undefined_type
           when Hash                               : encode_hash             value, include_type
           when Array                              : encode_array            value, include_type
           when Flails::App::Model::Renderable     : encode_renderable       value, include_type
