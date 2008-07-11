@@ -54,6 +54,33 @@ describe Flails::IO::AMF3::Encoder do
       
       test_run(@encoder, data)
     end
+  end
+  
+  describe "encoding special values" do
+    it "should successfully encode nulls" do
+      data = {
+        nil         => "\x01"
+      }
+      
+      test_run(@encoder, data)
+    end
+
+    it "should successfully encode undefined values" do
+      data = {
+        Flails::IO::Util::UndefinedType.new  => "\x00"
+      }
+      
+      test_run(@encoder, data)
+    end
+
+    it "should successfully encode booleans" do
+      data = {
+        true         => "\x03",
+        false        => "\x02"
+      }
+      
+      test_run(@encoder, data)
+    end
 
   end
 
