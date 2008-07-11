@@ -2,22 +2,8 @@ require 'spec/spec_helper'
 require 'lib/flails/io/util/generic_context'
 require 'lib/flails/io/amf3/context'
 
-module AMF3ContextHelper
-  def add_objects(context)
-    context.add 1
-    context.add 2
-    context.add "three"
-    context.add %w(some words)
-    context.add({:a => "hash"})    
-  end
-  
-  def expected_contents
-    [1, 2, "three", ["some", "words"], {:a => "hash"}]
-  end
-end
-
 describe Flails::IO::AMF3::Context do
-  include AMF3ContextHelper
+  include ContextHelper
 
   before(:each) do
     @amf3_context = Flails::IO::AMF3::Context.new
@@ -48,4 +34,19 @@ describe Flails::IO::AMF3::Context do
     it_should_behave_like "amf context"
   end
   
+  describe "clearing all contexts at the same time" do
+    before(:each) do
+      add_objects(@amf3_context.objects)
+      add_objects(@amf3_context.strings)
+      add_objects(@amf3_context.classes)
+      @amf3_context.clear!
+    end
+
+    it "should be empty" do
+      @amf3_context.objects.objects.should be_empty
+      @amf3_context.strings.objects.should be_empty
+      @amf3_context.classes.objects.should be_empty
+    end
+  end
+
 end

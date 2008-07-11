@@ -9,6 +9,12 @@ module Flails
           @strings = Flails::IO::Util::GenericContext.new
           @classes = Flails::IO::Util::GenericContext.new
         end
+        
+        def clear!
+          @objects.clear!
+          @strings.clear!
+          @classes.clear!
+        end
       end
     end
   end
