@@ -169,5 +169,24 @@ describe Flails::IO::Util::BigEndianWriter do
     end
   end
 
+  describe "writing variable-length encoded integers" do
+    it "should correctly encode variable-length encoded integers" do
+      data = {
+        0           => "\x00",
+        53          => "\x35",
+        127         => "\x7f",
+        128         => "\x81\x00",
+        212         => "\x81\x54",
+        16383       => "\xff\x7f",
+        16384       => "\x81\x80\x00",
+        107839      => "\x86\xca\x3f",
+        2097151     => "\xff\xff\x7f",
+        2097152     => "\x80\xc0\x80\x00",
+        268435455   => "\xbf\xff\xff\xff"
+      }
+      
+      test_run(@writer, data, :vlint)      
+    end
+  end
   
 end

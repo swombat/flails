@@ -23,6 +23,10 @@ module Flails
           :double     => 'G',
           :string     => nil
         }
+        
+        EXTENDED_TYPES = {
+          :vlint      => true
+        }
 
         attr_accessor :stream
         attr_accessor :local_byte_order
@@ -35,14 +39,37 @@ module Flails
         def write(type, value, stream=@stream)
           unless TYPES[type].nil?
             stream << [value].pack(TYPES[type])
-          else
-            stream << value
+          else 
+            unless EXTENDED_TYPES[type].nil?
+              extended_write(type, value, stream)
+            else
+              stream << value
+            end
           end
         end
         
       private
         def local_big_endian?
           [0x12345678].pack("L") == "\x12\x34\x56\x78"
+        end
+
+        def extended_write(type, value, stream=@stream)
+          write_variable_length_integer(value, stream)
+        end
+
+        def write_variable_length_integer(value, stream=@stream)
+          case value
+          when 0..0x7f:               write(:uchar, value, stream)
+          when 0x80..0x3fff:          write(:uchar, 0x80 | ((value >> 7) & 0xff), stream)
+                                      write(:uchar, value & 0x7f, stream)
+          when 0x4000..0x1fffff:      write(:uchar, 0x80 | ((value >> 14) & 0xff), stream)
+                                      write(:uchar, 0x80 | ((value >> 7) & 0xff), stream)
+                                      write(:uchar, value & 0x7f, stream)
+          when 0x200000..0x3fffffff:  write(:uchar, 0x80 | ((value >> 22) & 0xff), stream)
+                                      write(:uchar, 0x80 | ((value >> 15) & 0xff), stream)
+                                      write(:uchar, 0x80 | ((value >> 8) & 0xff), stream)
+                                      write(:uchar, value & 0xff, stream)
+          end
         end
       end
     end
