@@ -58,6 +58,8 @@ module Flails
         end
 
         def write_variable_length_integer(value, stream=@stream)
+          value += 0x20000000 if value < 0
+          
           case value
           when 0..0x7f:               write(:uchar, value, stream)
           when 0x80..0x3fff:          write(:uchar, 0x80 | ((value >> 7) & 0xff), stream)
