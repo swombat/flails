@@ -9,7 +9,7 @@ module Flails
           @objects = []
         end
         
-        def add_object(obj)
+        def add(obj)
           @objects << obj
         end
 

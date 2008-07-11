@@ -3,11 +3,11 @@ require 'lib/flails/io/amf0/context'
 
 module AMF0ContextHelper
   def add_objects(context)
-    context.add_object 1
-    context.add_object 2
-    context.add_object "three"
-    context.add_object %w(some words)
-    context.add_object({:a => "hash"})    
+    context.add 1
+    context.add 2
+    context.add "three"
+    context.add %w(some words)
+    context.add({:a => "hash"})    
   end
   
   def expected_contents

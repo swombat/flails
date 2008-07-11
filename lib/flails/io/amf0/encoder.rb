@@ -140,7 +140,7 @@ module Flails
             encode_reference(value)
             return true
           else
-            @context.add_object(value)
+            @context.add(value)
             return false
           end
         end        
