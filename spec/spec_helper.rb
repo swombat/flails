@@ -1,7 +1,20 @@
-require 'lib/flails/io/util/big_endian_writer'
-require 'lib/flails/io/amf0/encoder'
+# Unordered
+require 'date'
 require 'lib/flails/io/util/undefined_type'
 require 'lib/flails/app/model/renderable'
+
+# Ordered
+require 'lib/flails/io/util/generic_context'
+require 'lib/flails/io/util/big_endian_writer'
+
+require 'lib/flails/io/amf0/types'
+require 'lib/flails/io/amf0/context'
+require 'lib/flails/io/amf0/encoder'
+
+require 'lib/flails/io/amf3/types'
+require 'lib/flails/io/amf3/context'
+require 'lib/flails/io/amf3/encoder'
+
 require 'spec/shared_context_spec'
 
 module AMFEncoderHelper
