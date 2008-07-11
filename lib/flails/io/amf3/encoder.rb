@@ -32,9 +32,12 @@ module Flails
         #=====================
         # Primitives
         def encode_number(value, include_type=true)
-          if value.integer?
+          if value.integer? && (-0x10000000..0xfffffff).member?(value)
             @writer.write(:uchar, Flails::IO::AMF3::Types::INTEGER) if include_type
             @writer.write(:vlint, value)
+          else
+            @writer.write(:uchar, Flails::IO::AMF3::Types::NUMBER) if include_type
+            @writer.write(:double, value)
           end
         end
         

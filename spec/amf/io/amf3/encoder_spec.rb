@@ -9,7 +9,7 @@ describe Flails::IO::AMF3::Encoder do
   
   
   describe "encoding primitives" do
-    it "should successfully encode numbers" do
+    it "should successfully encode positive integers" do
       data = {
         0           => "\x04\x00",
         53          => "\x04\x35",
@@ -21,14 +21,40 @@ describe Flails::IO::AMF3::Encoder do
         107839      => "\x04\x86\xca\x3f",
         2097151     => "\x04\xff\xff\x7f",
         2097152     => "\x04\x80\xc0\x80\x00",
-        268435455   => "\x04\xbf\xff\xff\xff",
+        268435455   => "\x04\xbf\xff\xff\xff"
+      }
+      
+      test_run(@encoder, data)
+    end  
+        
+    it "should successfully encode negative integers" do
+      data = {
         -1          => "\x04\xff\xff\xff\xff",
         -42         => "\x04\xff\xff\xff\xd6",
         -268435456  => "\x04\xc0\x80\x80\x00"
       }
       
       test_run(@encoder, data)
-    end  
+    end
+    
+    it "should encode integers that are out of range of the 29-bit variable-length encoding as doubles" do
+      data = {
+        268435456   => "\x05\x41\xb0\x00\x00\x00\x00\x00\x00",
+        -268435457  => "\x05\xc1\xb0\x00\x00\x01\x00\x00\x00"
+      }
+      
+      test_run(@encoder, data)      
+    end
+
+    it "should successfully encode floating point numbers" do
+      data = {
+        0.1         => "\x05\x3f\xb9\x99\x99\x99\x99\x99\x9a",
+        0.123456789 => "\x05\x3f\xbf\x9a\xdd\x37\x39\x63\x5f"
+      }
+      
+      test_run(@encoder, data)
+    end
+
   end
 
 end
