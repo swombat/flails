@@ -32,6 +32,9 @@ module Flails
           when FalseClass                         : encode_boolean          value
           when String                             : encode_string           value, include_type
           when Array                              : encode_array            value, include_type
+          when Time                               : encode_date             value, include_type
+          when Date                               : encode_date             value.to_time, include_type
+          when DateTime                           : encode_date             value.to_time, include_type
           end
         end
         
@@ -75,7 +78,20 @@ module Flails
         def encode_reference(value, subcontext)
           @writer.write(:vlint, subcontext.get_reference(value) << 1)
         end
-
+        
+        #=====================
+        # Dates
+        def encode_date(value, include_type=true)
+          timezone = 0
+          
+          @writer.write(:uchar, Flails::IO::AMF3::Types::DATE) if include_type
+          
+          return if try_reference(value, :objects) if include_type
+          
+          @writer.write(:uchar, 0x01)
+          @writer.write(:double, value.to_f * 1000.0)
+        end
+        
         #=====================
         # Arrays and Objects
         def encode_array(value, include_type=true)
