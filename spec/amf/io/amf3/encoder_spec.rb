@@ -155,9 +155,10 @@ describe Flails::IO::AMF3::Encoder do
       array1 = [1, 2, 3, 4]
       
       data = {
-        [array1, array1]      => "\x09\x05\x01\x09\x09\x01\x04\x00\x04\x01\x04\x02\x04\x03\x00"
+        [array1, array1]      => "\x09\x05\x01\x09\x09\x01\x04\x01\x04\x02\x04\x03\x04\x04\x09\x02"
       }
-      
+
+      test_run(@encoder, data)
     end
     
   end
