@@ -31,6 +31,7 @@ module Flails
           when TrueClass                          : encode_boolean          value
           when FalseClass                         : encode_boolean          value
           when String                             : encode_string           value, include_type
+          when Array                              : encode_array            value, include_type
           end
         end
         
@@ -75,16 +76,32 @@ module Flails
           @writer.write(:vlint, subcontext.get_reference(value) << 1)
         end
 
+        #=====================
+        # Arrays and Objects
+        def encode_array(value, include_type=true)
+          @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
+
+          return if try_reference(value, :objects) if include_type
+
+          @writer.write(:vlint, (value.length << 1) + 1)
+          @writer.write(:uchar, 0x01)          
+          
+          value.each do |v|
+            self.encode(v)
+          end
+        end
+
+
       private
         # Tries the reference and returns true if the reference was encoded. Otherwise adds
         # the reference and returns false. This code was extracted to DRY out the encoding methods.
-        def try_reference(value, subcontext)
-          @subcontext = @context.send(subcontext)
-          if @subcontext.has_reference_for?(value)
+        def try_reference(value, subcontext_symbol)
+          subcontext = @context.send(subcontext_symbol)
+          if subcontext.has_reference_for?(value)
             encode_reference(value, subcontext)
             return true
           else
-            @subcontext.add(value)
+            subcontext.add(value)
             return false
           end
         end

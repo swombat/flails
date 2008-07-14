@@ -86,13 +86,33 @@ describe Flails::IO::AMF3::Encoder do
   describe "encoding strings" do
     it "should successfully encode short strings" do
       data = {
-        ""          => "\x06\x01",
-        "hello"     => "\x06\x0bhello",
-        "ᚠᛇᚻ"       => "\x06\x13\xe1\x9a\xa0\xe1\x9b\x87\xe1\x9a\xbb",
-        "Καλημέρα"  => "\x06\x21\xce\x9a\xce\xb1\xce\xbb\xce\xb7\xce\xbc\xce\xad\xcf\x81\xce\xb1"
+        ""                                    => "\x06\x01",
+        "hello"                               => "\x06\x0bhello",
+        "ᚠᛇᚻ"                                 => "\x06\x13\xe1\x9a\xa0\xe1\x9b\x87\xe1\x9a\xbb",
+        "Καλημέρα"                            => "\x06\x21\xce\x9a\xce\xb1\xce\xbb\xce\xb7\xce\xbc\xce\xad\xcf\x81\xce\xb1",
+        "ღმერთსი შემვედრე, ნუთუ კვლ" +
+        "ა დამხსნას სოფლისა შრომასა, ცეცხლს"  =>  "\x06\x82\x45\xe1\x83\xa6\xe1\x83\x9b\xe1\x83\x94\xe1\x83\xa0" +
+                                                  "\xe1\x83\x97\xe1\x83\xa1\xe1\x83\x98\x20\xe1\x83\xa8\xe1\x83" +
+                                                  "\x94\xe1\x83\x9b\xe1\x83\x95\xe1\x83\x94\xe1\x83\x93\xe1\x83" +
+                                                  "\xa0\xe1\x83\x94\x2c\x20\xe1\x83\x9c\xe1\x83\xa3\xe1\x83\x97" +
+                                                  "\xe1\x83\xa3\x20\xe1\x83\x99\xe1\x83\x95\xe1\x83\x9a\xe1\x83" +
+                                                  "\x90\x20\xe1\x83\x93\xe1\x83\x90\xe1\x83\x9b\xe1\x83\xae\xe1" +
+                                                  "\x83\xa1\xe1\x83\x9c\xe1\x83\x90\xe1\x83\xa1\x20\xe1\x83\xa1" +
+                                                  "\xe1\x83\x9d\xe1\x83\xa4\xe1\x83\x9a\xe1\x83\x98\xe1\x83\xa1" +
+                                                  "\xe1\x83\x90\x20\xe1\x83\xa8\xe1\x83\xa0\xe1\x83\x9d\xe1\x83" +
+                                                  "\x9b\xe1\x83\x90\xe1\x83\xa1\xe1\x83\x90\x2c\x20\xe1\x83\xaa" +
+                                                  "\xe1\x83\x94\xe1\x83\xaa\xe1\x83\xae\xe1\x83\x9a\xe1\x83\xa1"
       }
       
       test_run(@encoder, data)
+    end
+    
+    it "should use references for strings" do
+      data = {
+        ["Hello", "Hello", "Hello"]           => "\x09\x07\x01\x06\x0bHello\x06\x00\x06\x00"
+      }
+
+      test_run(@encoder, data)      
     end
     
     it "should not record a reference for empty strings" do
@@ -108,5 +128,25 @@ describe Flails::IO::AMF3::Encoder do
     # end
   end
   
-
+  describe "encoding arrays" do
+    it "should successfully encode simple arrays" do
+      data = {
+        [0, 1, 2, 3]          => "\x09\x09\x01\x04\x00\x04\x01\x04\x02\x04\x03",
+        ["Hello", 2, 3, 4, 5] => "\x09\x0b\x01\x06\x0b\x48\x65\x6c\x6c\x6f\x04\x02\x04\x03\x04\x04\x04\x05"
+      }
+      
+      test_run(@encoder, data)
+    end
+    
+    it "should use references with arrays" do
+      array1 = [1, 2, 3, 4]
+      
+      data = {
+        [array1, array1]      => "\x09\x05\x01\x09\x09\x01\x04\x00\x04\x01\x04\x02\x04\x03\x00"
+      }
+      
+    end
+    
+  end
+  
 end
