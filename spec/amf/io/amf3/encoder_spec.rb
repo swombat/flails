@@ -109,14 +109,27 @@ describe Flails::IO::AMF3::Encoder do
     
     it "should use references for strings" do
       data = {
-        ["Hello", "Hello", "Hello"]           => "\x09\x07\x01\x06\x0bHello\x06\x00\x06\x00"
+        ["Hello", "Hello", "Hello"]           => "\x09\x07\x01\x06\x0bHello\x06\x00\x06\x00",
+        ["Hello", "Hella", "Hello", "Hella"]  => "\x09\x09\x01\x06\x0bHello\x06\x0bHella\x06\x00\x06\x02"
       }
 
       test_run(@encoder, data)      
     end
     
     it "should not record a reference for empty strings" do
-      # TODO
+      data = {
+        ["Hello", "", ""]                     => "\x09\x07\x01\x06\x0bHello\x06\x01\x06\x01"
+      }
+
+      test_run(@encoder, data)      
+    end
+
+    it "should not mix string references with other types of references" do
+      data = {
+        [["Hello"], "Hello", "", ""]                     => "\x09\x09\x01\x09\x03\x01\x06\x0bHello\x06\x00\x06\x01\x06\x01"
+      }
+
+      test_run(@encoder, data)      
     end
 
     # it "should successfully encode long strings" do
