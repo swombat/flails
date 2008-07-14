@@ -143,7 +143,8 @@ module Flails
             @context.add(value)
             return false
           end
-        end        
+        end
+        
       end
     end
   end

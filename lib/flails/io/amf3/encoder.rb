@@ -30,6 +30,7 @@ module Flails
           when nil                                : encode_nil
           when TrueClass                          : encode_boolean          value
           when FalseClass                         : encode_boolean          value
+          when String                             : encode_string           value, include_type
           end
         end
         
@@ -46,6 +47,17 @@ module Flails
         end
 
         #=====================
+        # Strings
+        def encode_string(value, include_type=true)
+          @writer.write(:uchar, Flails::IO::AMF3::Types::STRING) if include_type
+
+          return if try_reference(value, :strings) if include_type && value.length != 0
+
+          @writer.write(:vlint, (value.length << 1) + 1)
+          @writer.write(:string, value)
+        end
+
+        #=====================
         # Special values
         def encode_nil(value=nil)
           @writer.write(:uchar, Flails::IO::AMF3::Types::NULL)
@@ -57,6 +69,24 @@ module Flails
 
         def encode_boolean(value=false)
           @writer.write(:uchar, value ? Flails::IO::AMF3::Types::BOOL_TRUE : Flails::IO::AMF3::Types::BOOL_FALSE)
+        end
+        
+        def encode_reference(value, subcontext)
+          @writer.write(:vlint, subcontext.get_reference(value) << 1)
+        end
+
+      private
+        # Tries the reference and returns true if the reference was encoded. Otherwise adds
+        # the reference and returns false. This code was extracted to DRY out the encoding methods.
+        def try_reference(value, subcontext)
+          @subcontext = @context.send(subcontext)
+          if @subcontext.has_reference_for?(value)
+            encode_reference(value, subcontext)
+            return true
+          else
+            @subcontext.add(value)
+            return false
+          end
         end
         
       end

@@ -81,7 +81,32 @@ describe Flails::IO::AMF3::Encoder do
       
       test_run(@encoder, data)
     end
-
   end
+  
+  describe "encoding strings" do
+    it "should successfully encode short strings" do
+      data = {
+        ""          => "\x06\x01",
+        "hello"     => "\x06\x0bhello",
+        "ᚠᛇᚻ"       => "\x06\x13\xe1\x9a\xa0\xe1\x9b\x87\xe1\x9a\xbb",
+        "Καλημέρα"  => "\x06\x21\xce\x9a\xce\xb1\xce\xbb\xce\xb7\xce\xbc\xce\xad\xcf\x81\xce\xb1"
+      }
+      
+      test_run(@encoder, data)
+    end
+    
+    it "should not record a reference for empty strings" do
+      # TODO
+    end
+
+    # it "should successfully encode long strings" do
+    #   data = {
+    #     "12"*40000  => "\x0c\x00\x01\x38\x80#{'12'*40000}"
+    #   }
+    #   
+    #   test_run(@encoder, data)      
+    # end
+  end
+  
 
 end
