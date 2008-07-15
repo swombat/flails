@@ -32,6 +32,7 @@ module Flails
           when FalseClass                         : encode_boolean          value
           when String                             : encode_string           value, include_type
           when Array                              : encode_array            value, include_type
+          when Hash                               : encode_hash             value, include_type
           when Time                               : encode_date             value, include_type
           when Date                               : encode_date             value.to_time, include_type
           when DateTime                           : encode_date             value.to_time, include_type
@@ -94,19 +95,43 @@ module Flails
         
         #=====================
         # Arrays and Objects
+        def encode_hash(value, include_type=true)
+          return if try_reference(value, :objects) if include_type
+          
+          @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
+
+          # The AMF3 spec demands that all str based indices be listed first
+          string_values, int_values = split_hash_indices(value)
+
+          @writer.write(:vlint, (int_values.length << 1) + 1)
+
+          string_values.each do |key, val|
+            encode_string(key, false)
+            encode(val)
+          end
+
+          @writer.write(:uchar, 0x01)
+
+          int_values.each do |key, val|
+            encode_string(key, false)
+            encode(val)
+          end
+
+        end
+        
+        
         def encode_array(value, include_type=true)
           @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
 
           return if try_reference(value, :objects) if include_type
 
           @writer.write(:vlint, (value.length << 1) + 1)
-          @writer.write(:uchar, 0x01)          
+          @writer.write(:uchar, 0x01)
           
           value.each do |v|
             self.encode(v)
           end
         end
-
 
       private
         # Tries the reference and returns true if the reference was encoded. Otherwise adds
@@ -120,6 +145,10 @@ module Flails
             subcontext.add(value)
             return false
           end
+        end
+        
+        def split_hash_indices(hash)
+          return hash, {}
         end
         
       end
