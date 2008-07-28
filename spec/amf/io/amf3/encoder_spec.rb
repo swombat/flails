@@ -206,13 +206,13 @@ describe Flails::IO::AMF3::Encoder do
         { 'a' => 'a',
           'b' => 'b',
           'c' => 'c',
-          'd' => 'd' }  => "\x0a\x0b\x01\x03a\x06\x00\x03c\x06\x02\x03b\x06\x04\x03d\x06\x06\x01"
+          'd' => 'd' }  => "\x09\x01\x03a\x06\x00\x03b\x06\x02\x03c\x06\x04\x03d\x06\x06\x01"
       }
-      
+
       test_run(@encoder, data)      
     end
   end
-  
+    
   describe "using references for a variety of object" do
     it "should not mix string references with array or date references" do
       data = {

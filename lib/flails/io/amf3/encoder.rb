@@ -56,7 +56,7 @@ module Flails
         def encode_string(value, include_type=true)
           @writer.write(:uchar, Flails::IO::AMF3::Types::STRING) if include_type
 
-          return if try_reference(value, :strings) if include_type && value.length != 0
+          return if try_reference(value, :strings) if value.length != 0
 
           @writer.write(:vlint, (value.length << 1) + 1)
           @writer.write(:string, value)
@@ -95,30 +95,23 @@ module Flails
         
         #=====================
         # Arrays and Objects
+        # Note: Hashes are assumed to be entirely composed of associative key-value pairs,
+        # with no mixed array+hash type, as such a type does not make sense in Ruby.
         def encode_hash(value, include_type=true)
           return if try_reference(value, :objects) if include_type
-          
+
           @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
 
           # The AMF3 spec demands that all str based indices be listed first
-          string_values, int_values = split_hash_indices(value)
+          @writer.write(:vlint, 0x01) # (int_values.length << 1) + 1 === 0x01
 
-          @writer.write(:vlint, (int_values.length << 1) + 1)
-
-          string_values.each do |key, val|
+          value.each do |key, val|
             encode_string(key, false)
             encode(val)
           end
 
           @writer.write(:uchar, 0x01)
-
-          int_values.each do |key, val|
-            encode_string(key, false)
-            encode(val)
-          end
-
-        end
-        
+        end        
         
         def encode_array(value, include_type=true)
           @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
@@ -145,10 +138,6 @@ module Flails
             subcontext.add(value)
             return false
           end
-        end
-        
-        def split_hash_indices(hash)
-          return hash, {}
         end
         
       end
