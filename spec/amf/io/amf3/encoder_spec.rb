@@ -232,7 +232,7 @@ describe Flails::IO::AMF3::Encoder do
       hash["a"] = hash
       data = {
         hash => "\x09\x01" + "\x0bHello" + "\x06\x0bWorld" +    # Hash + key 'Hello' + value 'World'
-                "\x03a" + "\x00" + "\x01"                       # key 'a' + reference 0 + end-of-hash
+                "\x03a" + "\x09\x00" + "\x01"                       # key 'a' + reference 0 + end-of-hash
       }
       
       test_run(@encoder, data)
@@ -243,6 +243,19 @@ describe Flails::IO::AMF3::Encoder do
     it "should not mix string references with array or date references" do
       data = {
         [Time.utc(2003, 12, 1), ["Hello"], "Hello", ""] => "\x09\x09\x01\x08\x01\x42\x6f\x25\xe2\xb2\x80\x00\x00\x09\x03\x01\x06\x0bHello\x06\x00\x06\x01"
+      }
+
+      test_run(@encoder, data)
+    end
+
+    it "should not mix string references with hash references" do
+      hash = {"Hello" => "World"}
+      data = {
+        [hash, "Hello", hash, "World"] => "\x09\x09\x01" +                                          # Array
+                                          "\x09\x01" + "\x0bHello" + "\x06\x0bWorld" + "\x01" +     # hash
+                                          "\x06\x00" +                                              # ref for "Hello"
+                                          "\x09\x02" +                                              # ref for hash
+                                          "\x06\x02"
       }
 
       test_run(@encoder, data)

@@ -98,9 +98,9 @@ module Flails
         # Note: Hashes are assumed to be entirely composed of associative key-value pairs,
         # with no mixed array+hash type, as such a type does not make sense in Ruby.
         def encode_hash(value, include_type=true)
-          return if try_reference(value, :objects) if include_type
-
           @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
+
+          return if try_reference(value, :objects) if include_type
 
           # The AMF3 spec demands that all str based indices be listed first
           @writer.write(:vlint, 0x01) # (int_values.length << 1) + 1 === 0x01
