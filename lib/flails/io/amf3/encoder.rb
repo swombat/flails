@@ -32,7 +32,7 @@ module Flails
           when FalseClass                         : encode_boolean          value
           when String                             : encode_string           value, include_type
           when Array                              : encode_array            value, include_type
-          when Hash                               : encode_hash             value, include_type
+          when Hash                               : encode_hash             value.stringify_keys, include_type
           when Time                               : encode_date             value, include_type
           when Date                               : encode_date             value.to_time, include_type
           when DateTime                           : encode_date             value.to_time, include_type

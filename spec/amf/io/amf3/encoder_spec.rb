@@ -237,6 +237,17 @@ describe Flails::IO::AMF3::Encoder do
       
       test_run(@encoder, data)
     end
+
+    it "should treat symbol keys as strings" do
+      data = {
+        { :Hello => Time.utc(2003, 12, 1),
+          :World => [0, 1, 2, 3] }             =>  "\x09\x01" + "\x0bHello" + "\x08\x01\x42\x6f\x25\xe2\xb2\x80\x00\x00" +
+                                                    "\x0bWorld" + "\x09\x09\x01\x04\x00\x04\x01\x04\x02\x04\x03" +
+                                                    "\x01"
+      }
+      
+      test_run(@encoder, data)
+    end
   end
     
   describe "using references for a variety of object" do
