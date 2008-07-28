@@ -7,6 +7,7 @@ require 'lib/flails/io/invalid_input_exception'
 # Ordered
 require 'lib/flails/io/util/generic_context'
 require 'lib/flails/io/util/big_endian_writer'
+require 'lib/flails/io/util/class_definition'
 
 require 'lib/flails/io/amf0/types'
 require 'lib/flails/io/amf0/context'
