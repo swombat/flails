@@ -209,7 +209,16 @@ describe Flails::IO::AMF3::Encoder do
           'd' => 'd' }  => "\x09\x01\x03a\x06\x00\x03b\x06\x02\x03c\x06\x04\x03d\x06\x06\x01"
       }
 
-      test_run(@encoder, data)      
+      test_run(@encoder, data)
+    end
+    
+    it "should not accept empty strings as keys" do
+      data = {
+        { 'a' => 'a',
+          ''  => 'b'}   => "x"
+      }
+      
+      lambda { test_run(@encoder, data) }.should raise_error Flails::IO::InvalidInputException
     end
   end
     

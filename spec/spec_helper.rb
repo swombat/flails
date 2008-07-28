@@ -2,6 +2,7 @@
 require 'date'
 require 'lib/flails/io/util/undefined_type'
 require 'lib/flails/app/model/renderable'
+require 'lib/flails/io/invalid_input_exception'
 
 # Ordered
 require 'lib/flails/io/util/generic_context'

@@ -106,6 +106,7 @@ module Flails
           @writer.write(:vlint, 0x01) # (int_values.length << 1) + 1 === 0x01
 
           value.each do |key, val|
+            raise Flails::IO::InvalidInputException, "Cannot render Hash with empty string key" if key == ""
             encode_string(key, false)
             encode(val)
           end
