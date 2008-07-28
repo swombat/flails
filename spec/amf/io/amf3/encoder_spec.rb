@@ -226,6 +226,17 @@ describe Flails::IO::AMF3::Encoder do
       
       lambda { test_run(@encoder, data) }.should raise_error Flails::IO::InvalidInputException
     end
+    
+    it "should support recursive hash references" do
+      hash = { "Hello" => "World" }
+      hash["a"] = hash
+      data = {
+        hash => "\x09\x01" + "\x0bHello" + "\x06\x0bWorld" +    # Hash + key 'Hello' + value 'World'
+                "\x03a" + "\x00" + "\x01"                       # key 'a' + reference 0 + end-of-hash
+      }
+      
+      test_run(@encoder, data)
+    end
   end
     
   describe "using references for a variety of object" do
@@ -234,9 +245,9 @@ describe Flails::IO::AMF3::Encoder do
         [Time.utc(2003, 12, 1), ["Hello"], "Hello", ""] => "\x09\x09\x01\x08\x01\x42\x6f\x25\xe2\xb2\x80\x00\x00\x09\x03\x01\x06\x0bHello\x06\x00\x06\x01"
       }
 
-      test_run(@encoder, data)      
+      test_run(@encoder, data)
     end
-    
+        
     it "should use the same reference count for arrays and dates" do
       date = Time.utc(2003, 12, 1)
       
@@ -245,7 +256,7 @@ describe Flails::IO::AMF3::Encoder do
       }
       
       test_run(@encoder, data)
-    end 
+    end
   end
   
 end
