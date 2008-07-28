@@ -36,6 +36,7 @@ module Flails
           when Time                               : encode_date             value, include_type
           when Date                               : encode_date             value.to_time, include_type
           when DateTime                           : encode_date             value.to_time, include_type
+          when Flails::IO::Util::Renderable       : encode_object           value, include_type
           end
         end
         
@@ -87,7 +88,7 @@ module Flails
           
           @writer.write(:uchar, Flails::IO::AMF3::Types::DATE) if include_type
           
-          return if try_reference(value, :objects) if include_type
+          return if try_reference(value, :objects)
           
           @writer.write(:uchar, 0x01)
           @writer.write(:double, value.to_f * 1000.0)
@@ -100,7 +101,7 @@ module Flails
         def encode_hash(value, include_type=true)
           @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
 
-          return if try_reference(value, :objects) if include_type
+          return if try_reference(value, :objects)
 
           # The AMF3 spec demands that all str based indices be listed first
           @writer.write(:vlint, 0x01) # (int_values.length << 1) + 1 === 0x01
@@ -117,7 +118,7 @@ module Flails
         def encode_array(value, include_type=true)
           @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
 
-          return if try_reference(value, :objects) if include_type
+          return if try_reference(value, :objects)
 
           @writer.write(:vlint, (value.length << 1) + 1)
           @writer.write(:uchar, 0x01)
@@ -125,6 +126,14 @@ module Flails
           value.each do |v|
             self.encode(v)
           end
+        end
+        
+        #=====================
+        # Objects
+        def encode_object(value, include_type=true)
+          @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT) if include_type
+          
+          return if try_reference(value, :objects)
         end
 
       private
