@@ -270,6 +270,25 @@ describe Flails::IO::AMF3::Encoder do
       
       test_run(@encoder, data)
     end
+
+    it "should use the same references for arrays and hashes" do
+      hash = {"Hello" => "World"}
+      array = [hash, hash]
+      hash["a"] = array
+      
+      data = {
+        [array, hash]     =>  "\x09\x05\x01" +                        # Enclosing array of 2 elements
+                                "\x09\x05\x01" +                      # array
+                                  "\x09\x01" +                        # hash
+                                    "\x0bHello" + "\x06\x0bWorld" +   # "Hello" => "World"
+                                    "\x03a" + "\x09\x02" +            # "a" => ref for array
+                                  "\x01" +                            # end of hash
+                                  "\x09\x04" +                        # ref for hash
+                                "\x09\x04"                            # ref for hash
+      }
+
+      test_run(@encoder, data)
+    end
   end
   
 end
