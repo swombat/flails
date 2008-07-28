@@ -1,6 +1,6 @@
 require 'lib/flails/io/util/big_endian_writer'
 
-module BigEndianWriterHelper
+module BigEndianWriterSpecHelper
   def test_run(writer, data, method)
     data.each do |key, value|
       stream = ""
@@ -12,7 +12,7 @@ module BigEndianWriterHelper
 end
 
 describe Flails::IO::Util::BigEndianWriter do
-  include BigEndianWriterHelper
+  include BigEndianWriterSpecHelper
   
   before(:each) do
     @writer = Flails::IO::Util::BigEndianWriter.new
