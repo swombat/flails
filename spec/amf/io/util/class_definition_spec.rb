@@ -8,7 +8,7 @@ describe Flails::IO::Util::ClassDefinition do
 
   describe "untyped renderable class definition" do
     before(:each) do
-      Flails::IO::Util::ClassDefinition::reset!
+      Flails::IO::Util::ClassDefinition::clear!
       @untyped_object       = RenderableObject.new()
       @untyped_definition   = Flails::IO::Util::ClassDefinition::get(@untyped_object)
     end
@@ -24,7 +24,7 @@ describe Flails::IO::Util::ClassDefinition do
 
   describe "typed renderable class definition" do
     before(:each) do
-      Flails::IO::Util::ClassDefinition::reset!
+      Flails::IO::Util::ClassDefinition::clear!
       Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s => "org.flails.spam" }
       @typed_object         = RenderableObject.new({'baz' => 'hello'})
       @typed_definition     = Flails::IO::Util::ClassDefinition::get(@typed_object)
@@ -41,7 +41,7 @@ describe Flails::IO::Util::ClassDefinition do
   
   describe "retrieving the same object type several times" do
     before(:each) do
-      Flails::IO::Util::ClassDefinition::reset!
+      Flails::IO::Util::ClassDefinition::clear!
       Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s => "obj.class" }
       @object1            = RenderableObject.new({:foo => "bar"})
       @object2            = RenderableObject.new({:foo => "baz"})

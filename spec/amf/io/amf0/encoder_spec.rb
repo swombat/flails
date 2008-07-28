@@ -76,7 +76,7 @@ describe Flails::IO::AMF0::Encoder do
   
   describe "encoding objects" do
     before(:each) do
-      Flails::IO::Util::ClassDefinition::reset!
+      Flails::IO::Util::ClassDefinition::clear!
     end
     
     it "should successfully encode a hash" do
@@ -164,7 +164,7 @@ describe Flails::IO::AMF0::Encoder do
   
   describe "encoding mixed objects" do
     before(:each) do
-      Flails::IO::Util::ClassDefinition::reset!
+      Flails::IO::Util::ClassDefinition::clear!
     end
     
     it "should use references correctly for mixed objects with circular references" do

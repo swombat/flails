@@ -5,7 +5,7 @@ module Flails
         
         #======================
         # Instantiation / Retrieval
-        def self.reset!
+        def self.clear!
           @@mappings = {}
           @@class_name_mappings = {}
         end

@@ -94,7 +94,7 @@ module Flails
         end
         
         #=====================
-        # Arrays and Objects
+        # Arrays and Hashes
         # Note: Hashes are assumed to be entirely composed of associative key-value pairs,
         # with no mixed array+hash type, as such a type does not make sense in Ruby.
         def encode_hash(value, include_type=true)
