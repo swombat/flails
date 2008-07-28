@@ -16,6 +16,12 @@ describe Flails::IO::AMF3::Types do
     Flails::IO::AMF3::Types::OBJECT.should      == 0x0a
     Flails::IO::AMF3::Types::XMLSTRING.should   == 0x0b
     Flails::IO::AMF3::Types::BYTEARRAY.should   == 0x0c
+    
+    Flails::IO::AMF3::Types::OBJECT_STATIC      == 0x00
+    Flails::IO::AMF3::Types::OBJECT_EXTERNAL    == 0x01
+    Flails::IO::AMF3::Types::OBJECT_DYNAMIC     == 0x02
+    Flails::IO::AMF3::Types::OBJECT_PROXY       == 0x03
+    
   end
   
 end
