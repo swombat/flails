@@ -75,6 +75,10 @@ describe Flails::IO::AMF0::Encoder do
   
   
   describe "encoding objects" do
+    before(:each) do
+      Flails::IO::Util::ClassDefinition::reset!
+    end
+    
     it "should successfully encode a hash" do
       data = {
         {'a' => 'a'}        => "\x03\x00\x01\x61\x02\x00\x01\x61\x00\x00\x09",
@@ -93,19 +97,21 @@ describe Flails::IO::AMF0::Encoder do
     end
 
     it "should successfully encode a typed Renderable object" do
+      Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s, "org.flails.spam" }
       data ={
-        RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")  => "\x10\x00\x0forg.flails.spam" + # object enclosure with type
-                                                                          "\x00\x03baz" + # first attribute name
-                                                                            "\x02\x00\x05hello" + # first attribute value
-                                                                          "\x00\x00\x09" # object termination
+        RenderableObject.new({'baz' => 'hello'})  => "\x10\x00\x0forg.flails.spam" + # object enclosure with type
+                                                       "\x00\x03baz" + # first attribute name
+                                                         "\x02\x00\x05hello" + # first attribute value
+                                                       "\x00\x00\x09" # object termination
       }
 
       test_run(@encoder, data)
     end
     
     it "should use references" do
-      obj1 = RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")
-      obj2 = RenderableObject.new({'bar' => 'hello'}, "org.flails.spam")
+      Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s, "org.flails.spam" }
+      obj1 = RenderableObject.new({'baz' => 'hello'})
+      obj2 = RenderableObject.new({'bar' => 'hello'})
       data ={
         [obj1, obj1, obj1]        => "\x0a\x00\x00\x00\x03\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\x09\x07\x00\x01\x07\x00\x01",
         [obj1, obj2, obj1, obj2]  => "\x0a\x00\x00\x00\x04\x10\x00\x0forg.flails.spam\x00\x03baz\x02\x00\x05hello\x00\x00\x09" +
@@ -157,9 +163,14 @@ describe Flails::IO::AMF0::Encoder do
   end
   
   describe "encoding mixed objects" do
+    before(:each) do
+      Flails::IO::Util::ClassDefinition::reset!
+    end
+    
     it "should use references correctly for mixed objects with circular references" do
+      Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s, "org.flails.spam" }
       arr1 = [1, 2, 3]
-      obj1 = RenderableObject.new({'baz' => arr1}, "org.flails.spam")
+      obj1 = RenderableObject.new({'baz' => arr1})
       arr1[1] = obj1
       data = {
         arr1 => "\x0a\x00\x00\x00\x03" + # arr1 enclosure

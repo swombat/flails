@@ -5,6 +5,7 @@ module Flails
         
         def self.reset!
           @@mappings = {}
+          @@class_name_mappings = {}
         end
         
         def self.get(klass)
@@ -12,9 +13,14 @@ module Flails
           @@mappings[klass.class] || ClassDefinition.new(klass)
         end
         
+        def self.class_name_mappings=(class_name_mappings={})
+          @@class_name_mappings ||= {}
+          @@class_name_mappings.merge!(class_name_mappings)
+        end
+        
         # The Flex-side class name to be used when rendering
-        def class_name
-          @class_name
+        def flex_class_name
+          @flex_class_name
         end
         
         # The attributes to be rendered
@@ -24,8 +30,8 @@ module Flails
         
       private
         def initialize(klass)
-          @class_name = klass.class_name
-          @attributes = klass.renderable_attributes
+          @flex_class_name        = @@class_name_mappings[klass.class.to_s]
+          @attributes             = klass.renderable_attributes
           @@mappings[klass.class] = self
         end
         

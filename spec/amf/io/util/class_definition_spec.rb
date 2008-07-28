@@ -14,7 +14,7 @@ describe Flails::IO::Util::ClassDefinition do
     end
     
     it "should have an empty class_name" do
-      @untyped_definition.class_name.should == nil
+      @untyped_definition.flex_class_name.should == nil
     end
     
     it "should have one renderable attribute" do
@@ -25,12 +25,13 @@ describe Flails::IO::Util::ClassDefinition do
   describe "typed renderable class definition" do
     before(:each) do
       Flails::IO::Util::ClassDefinition::reset!
-      @typed_object         = RenderableObject.new({'baz' => 'hello'}, "org.flails.spam")
+      Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s => "org.flails.spam" }
+      @typed_object         = RenderableObject.new({'baz' => 'hello'})
       @typed_definition     = Flails::IO::Util::ClassDefinition::get(@typed_object)
     end
 
     it "should have the correct class name" do
-      @typed_definition.class_name.should == "org.flails.spam"
+      @typed_definition.flex_class_name.should == "org.flails.spam"
     end
     
     it "should have one attribute" do
@@ -41,7 +42,8 @@ describe Flails::IO::Util::ClassDefinition do
   describe "retrieving the same object type several times" do
     before(:each) do
       Flails::IO::Util::ClassDefinition::reset!
-      @object1            = RenderableObject.new({:foo => "bar"}, "obj.class")
+      Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s => "obj.class" }
+      @object1            = RenderableObject.new({:foo => "bar"})
       @object2            = RenderableObject.new({:foo => "baz"})
       @class_definition1  = Flails::IO::Util::ClassDefinition::get(@object1)
       @class_definition2  = Flails::IO::Util::ClassDefinition::get(@object2)
@@ -52,7 +54,7 @@ describe Flails::IO::Util::ClassDefinition do
     end
     
     it "should pick up the class_name from the first object" do
-      @class_definition2.class_name.should == "obj.class"
+      @class_definition2.flex_class_name.should == "obj.class"
     end    
   end
   

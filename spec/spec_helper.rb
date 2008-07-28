@@ -32,12 +32,9 @@ end
 
 class RenderableObject
   include Flails::App::Model::Renderable
-  def initialize(attribs={'a'=>'b'}, class_name=nil)
+  def initialize(attribs={'a'=>'b'})
     @attribs = attribs
-    @class_name = class_name
   end
-  
-  attr_reader :class_name
   
   def renderable_attributes
     @attribs

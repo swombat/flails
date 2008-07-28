@@ -100,11 +100,13 @@ module Flails
         def encode_renderable(value, include_type=true)
           return if try_reference(value) if include_type
           
-          if (value.class_name.nil?)
+          class_definition = Flails::IO::Util::ClassDefinition.get(value)
+          
+          if (class_definition.flex_class_name.nil?)
             @writer.write(:uchar, Flails::IO::AMF0::Types::OBJECT) if include_type
           else
             @writer.write(:uchar, Flails::IO::AMF0::Types::TYPEDOBJECT) if include_type
-            encode_string(value.class_name, false)
+            encode_string(class_definition.flex_class_name, false)
           end
 
           encode_hash(value.renderable_attributes, false)
