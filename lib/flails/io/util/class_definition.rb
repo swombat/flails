@@ -3,6 +3,8 @@ module Flails
     module Util
       class ClassDefinition
         
+        #======================
+        # Instantiation / Retrieval
         def self.reset!
           @@mappings = {}
           @@class_name_mappings = {}
@@ -17,6 +19,9 @@ module Flails
           @@class_name_mappings ||= {}
           @@class_name_mappings.merge!(class_name_mappings)
         end
+        
+        #======================
+        # Instance Methods
         
         # The Flex-side class name to be used when rendering
         def flex_class_name
