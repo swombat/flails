@@ -22,7 +22,7 @@ describe Flails::IO::Util::ClassDefinition do
     end
     
     it "should be encoded as a Proxy object" do
-      @untyped_definition.encoding.should == Flails::IO::AMF3::Types::OBJECT_PROXY
+      @untyped_definition.encoding.should == Flails::IO::AMF3::Types::OBJECT_DYNAMIC
     end
   end
 

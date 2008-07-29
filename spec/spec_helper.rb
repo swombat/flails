@@ -40,3 +40,10 @@ class RenderableObject
     @attribs
   end
 end
+
+class RenderableObject1 < RenderableObject
+end
+class RenderableObject2 < RenderableObject
+end
+class RenderableObject3 < RenderableObject
+end

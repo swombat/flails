@@ -36,7 +36,7 @@ module Flails
           when Time                               : encode_date             value, include_type
           when Date                               : encode_date             value.to_time, include_type
           when DateTime                           : encode_date             value.to_time, include_type
-          when Flails::App::Model::Renderable     : encode_object           value, include_type
+          when Flails::App::Model::Renderable     : encode_renderable       value, include_type
           end
         end
         
@@ -139,7 +139,7 @@ module Flails
         
         #=====================
         # Objects
-        def encode_object(value, include_type=true)
+        def encode_renderable(value, include_type=true)
           @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT) if include_type
           
           return if try_reference(value, :objects)
@@ -151,12 +151,26 @@ module Flails
                                     (class_definition.encoding << 2) +
                                     (0x01 << 1) +
                                     0x01)
-            self.encode(class_definition.flex_class_name, false)
-          else
-            class_reference_used = true
+            self.encode_string(class_definition.flex_class_name || "", false)
+            
+            if class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
+              class_definition.attributes.each do |key|
+                self.encode_string(key, false)
+              end
+            end
           end
           
-          
+          if class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
+            class_definition.attributes.each do |key|
+              self.encode(value.renderable_attributes[key])
+            end
+          elsif class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_DYNAMIC
+            class_definition.attributes.each do |key|
+              self.encode_string(key, false)
+              self.encode(value.renderable_attributes[key])
+            end
+            @writer.write(:uchar, 0x01)
+          end
         end
 
       private
@@ -164,15 +178,11 @@ module Flails
         # the reference and returns false. This code was extracted to DRY out the encoding methods.
         def try_reference(value, subcontext_symbol)
           subcontext = @context.send(subcontext_symbol)
-          puts subcontext.inspect if subcontext_symbol == :classes
           if subcontext.has_reference_for?(value)
-            puts "ref'ed" if subcontext_symbol == :classes
             encode_reference(value, subcontext, subcontext_symbol)
             return true
           else
-            puts "added #{value.inspect}" if subcontext_symbol == :classes
             subcontext.add(value)
-            puts "Context now: #{subcontext.inspect}" if subcontext_symbol == :classes
             return false
           end
         end

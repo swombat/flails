@@ -34,13 +34,13 @@ module Flails
         end
         
         def encoding
-          @flex_class_name.nil? ? Flails::IO::AMF3::Types::OBJECT_PROXY : Flails::IO::AMF3::Types::OBJECT_STATIC
+          @flex_class_name.nil? ? Flails::IO::AMF3::Types::OBJECT_DYNAMIC : Flails::IO::AMF3::Types::OBJECT_STATIC
         end
         
       private
         def initialize(klass)
           @flex_class_name        = @@class_name_mappings[klass.class.to_s]
-          @attributes             = klass.renderable_attributes
+          @attributes             = Hash === klass.renderable_attributes ? klass.renderable_attributes.keys : klass.renderable_attributes
           @@mappings[klass.class] = self
         end
         
