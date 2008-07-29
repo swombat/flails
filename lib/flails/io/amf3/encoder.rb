@@ -145,11 +145,11 @@ module Flails
           return if try_reference(value, :objects)
           
           class_definition = Flails::IO::Util::ClassDefinition::get(value)
-
+          
           unless try_reference(class_definition, :classes)
-            @writer.write(:vlint,   (class_definition.attributes.length << 4) +
-                                    (class_definition.encoding << 2) +
-                                    (0x01 << 1) +
+            @writer.write(:vlint,   (class_definition.sealed_attributes_count << 4) |
+                                    (class_definition.encoding << 2) |
+                                    (0x01 << 1) |
                                     0x01)
             self.encode_string(class_definition.flex_class_name || "", false)
             
@@ -159,7 +159,7 @@ module Flails
               end
             end
           end
-          
+
           if class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
             class_definition.attributes.each do |key|
               self.encode(value.renderable_attributes[key])
@@ -171,6 +171,7 @@ module Flails
             end
             @writer.write(:uchar, 0x01)
           end
+          
         end
 
       private

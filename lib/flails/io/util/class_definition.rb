@@ -33,6 +33,10 @@ module Flails
           @attributes
         end
         
+        def sealed_attributes_count
+          @flex_class_name.nil? || @flex_class_name.blank? ? 0 : @attributes.length
+        end
+        
         def encoding
           @flex_class_name.nil? ? Flails::IO::AMF3::Types::OBJECT_DYNAMIC : Flails::IO::AMF3::Types::OBJECT_STATIC
         end

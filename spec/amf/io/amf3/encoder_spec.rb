@@ -313,7 +313,7 @@ describe Flails::IO::AMF3::Encoder do
 
     it "should successfully render a dynamic Renderable with attributes" do
       data = {
-        RenderableObject.new({"Hello" => "World"})      => "\x0a\x1b\x01\x0bHello\x06\x0bWorld\x01"
+        RenderableObject.new({"Hello" => "World"})      => "\x0a\x0b\x01\x0bHello\x06\x0bWorld\x01"
       }
       
       test_run(@encoder, data)
@@ -326,13 +326,13 @@ describe Flails::IO::AMF3::Encoder do
           RenderableObject3.new({"Hello2" => "World2"}),
           RenderableObject1.new({}),
           RenderableObject2.new({"Hello1" => "World3"}),
-          RenderableObject3.new({"Hello2" => "World4"}),] => "\x09\x0d\x01" +                                # Enclosing Array
-                                                             "\x0a\x0b\x01\x01" +                            # obj1
-                                                             "\x0a\x1b\x01\x0dHello1\x06\x0dWorld1\x01" +    # obj2
-                                                             "\x0a\x1b\x01\x0dHello2\x06\x0dWorld2\x01" +    # obj3
-                                                             "\x0a\x01\x01" +                                # obj1b - class def ref
-                                                             "\x0a\x05\x00\x06\x0dWorld3\x01" +              # obj2b - class def ref
-                                                             "\x0a\x09\x04\x06\x0dWorld4\x01"                # obj3b - class def ref
+          RenderableObject3.new({"Hello2" => "World4"})]  =>  "\x09\x0d\x01" +                                # Enclosing Array
+                                                                "\x0a\x0b\x01\x01" +                          # obj1
+                                                                "\x0a\x0b\x01\x0dHello1\x06\x0dWorld1\x01" +  # obj2
+                                                                "\x0a\x0b\x01\x0dHello2\x06\x0dWorld2\x01" +  # obj3
+                                                                "\x0a\x01\x01" +                              # obj1b - class def ref
+                                                                "\x0a\x05\x00\x06\x0dWorld3\x01" +            # obj2b - class def ref
+                                                                "\x0a\x09\x04\x06\x0dWorld4\x01"              # obj3b - class def ref
       }
       
       test_run(@encoder, data)
