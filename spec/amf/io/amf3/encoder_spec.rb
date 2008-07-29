@@ -268,6 +268,16 @@ describe Flails::IO::AMF3::Encoder do
       
       test_run(@encoder, data)
     end
+    
+    it "should reuse class definitions between renderings of static Renderables" do
+      data = {
+        [RenderableObject.new({}), RenderableObject.new({"Hello" => "World"})]      => "\x09\x05\x01" + 
+                                                                                        "\x0a\x03\x1forg.flails.spam" + 
+                                                                                        "\x0a\x01"
+      }
+      
+      test_run(@encoder, data)
+    end
   end  
   
   #=========================

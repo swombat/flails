@@ -164,11 +164,15 @@ module Flails
         # the reference and returns false. This code was extracted to DRY out the encoding methods.
         def try_reference(value, subcontext_symbol)
           subcontext = @context.send(subcontext_symbol)
+          puts subcontext.inspect if subcontext_symbol == :classes
           if subcontext.has_reference_for?(value)
+            puts "ref'ed" if subcontext_symbol == :classes
             encode_reference(value, subcontext, subcontext_symbol)
             return true
           else
+            puts "added #{value.inspect}" if subcontext_symbol == :classes
             subcontext.add(value)
+            puts "Context now: #{subcontext.inspect}" if subcontext_symbol == :classes
             return false
           end
         end
