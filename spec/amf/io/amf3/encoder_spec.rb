@@ -7,7 +7,8 @@ describe Flails::IO::AMF3::Encoder do
     @encoder = Flails::IO::AMF3::Encoder.new    
   end
   
-  
+  #=========================
+  # Primitives
   describe "encoding primitives" do
     it "should successfully encode positive integers" do
       data = {
@@ -56,6 +57,8 @@ describe Flails::IO::AMF3::Encoder do
     end
   end
   
+  #=========================
+  # Special Values
   describe "encoding special values" do
     it "should successfully encode nulls" do
       data = {
@@ -83,6 +86,8 @@ describe Flails::IO::AMF3::Encoder do
     end
   end
   
+  #=========================
+  # Strings
   describe "encoding strings" do
     it "should successfully encode short strings" do
       data = {
@@ -131,16 +136,10 @@ describe Flails::IO::AMF3::Encoder do
 
       test_run(@encoder, data)      
     end
-
-    # it "should successfully encode long strings" do
-    #   data = {
-    #     "12"*40000  => "\x0c\x00\x01\x38\x80#{'12'*40000}"
-    #   }
-    #   
-    #   test_run(@encoder, data)      
-    # end
   end
   
+  #=========================
+  # Arrays
   describe "encoding arrays" do
     it "should successfully encode simple arrays" do
       data = {
@@ -162,6 +161,8 @@ describe Flails::IO::AMF3::Encoder do
     end
   end
   
+  #=========================
+  # Dates
   describe "encoding dates" do
     it "should successfully encode Date objects" do
       data = {
@@ -200,6 +201,8 @@ describe Flails::IO::AMF3::Encoder do
     end
   end
   
+  #=========================
+  # Hashes
   describe "encoding hashes" do
     it "should be able to encode hashes" do
       data = {
@@ -249,7 +252,26 @@ describe Flails::IO::AMF3::Encoder do
       test_run(@encoder, data)
     end
   end
-    
+
+  #=========================
+  # Objects
+  describe "encoding static, typed objects" do
+    before(:each) do
+      Flails::IO::Util::ClassDefinition::clear!
+      Flails::IO::Util::ClassDefinition::class_name_mappings = { RenderableObject.to_s, "org.flails.spam" }
+    end
+
+    it "should successfully render a static Renderable with no attributes" do
+      data = {
+        RenderableObject.new({})      => "\x0a\x03\x1forg.flails.spam"
+      }
+      
+      test_run(@encoder, data)
+    end
+  end  
+  
+  #=========================
+  # Mixed with References
   describe "using references for a variety of object" do
     it "should not mix string references with array or date references" do
       data = {

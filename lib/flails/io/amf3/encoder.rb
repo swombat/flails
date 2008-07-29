@@ -36,7 +36,7 @@ module Flails
           when Time                               : encode_date             value, include_type
           when Date                               : encode_date             value.to_time, include_type
           when DateTime                           : encode_date             value.to_time, include_type
-          when Flails::IO::Util::Renderable       : encode_object           value, include_type
+          when Flails::App::Model::Renderable     : encode_object           value, include_type
           end
         end
         
@@ -77,8 +77,17 @@ module Flails
           @writer.write(:uchar, value ? Flails::IO::AMF3::Types::BOOL_TRUE : Flails::IO::AMF3::Types::BOOL_FALSE)
         end
         
-        def encode_reference(value, subcontext)
-          @writer.write(:vlint, subcontext.get_reference(value) << 1)
+        def encode_reference(value, subcontext, subcontext_symbol)
+          
+          if subcontext_symbol == :classes
+            shift = 2
+            add   = 1
+          else
+            shift = 1
+            add   = 0
+          end
+          
+          @writer.write(:vlint, (subcontext.get_reference(value) << shift) + add)
         end
         
         #=====================
@@ -134,6 +143,20 @@ module Flails
           @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT) if include_type
           
           return if try_reference(value, :objects)
+          
+          class_definition = Flails::IO::Util::ClassDefinition::get(value)
+
+          unless try_reference(class_definition, :classes)
+            @writer.write(:vlint,   (class_definition.attributes.length << 4) +
+                                    (class_definition.encoding << 2) +
+                                    (0x01 << 1) +
+                                    0x01)
+            self.encode(class_definition.flex_class_name, false)
+          else
+            class_reference_used = true
+          end
+          
+          
         end
 
       private
@@ -142,7 +165,7 @@ module Flails
         def try_reference(value, subcontext_symbol)
           subcontext = @context.send(subcontext_symbol)
           if subcontext.has_reference_for?(value)
-            encode_reference(value, subcontext)
+            encode_reference(value, subcontext, subcontext_symbol)
             return true
           else
             subcontext.add(value)

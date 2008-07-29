@@ -19,7 +19,11 @@ describe Flails::IO::Util::ClassDefinition do
     
     it "should have one renderable attribute" do
       @untyped_definition.attributes.length.should == 1
-    end    
+    end
+    
+    it "should be encoded as a Proxy object" do
+      @untyped_definition.encoding.should == Flails::IO::AMF3::Types::OBJECT_PROXY
+    end
   end
 
   describe "typed renderable class definition" do
@@ -36,6 +40,10 @@ describe Flails::IO::Util::ClassDefinition do
     
     it "should have one attribute" do
       @typed_definition.attributes.length.should == 1
+    end
+
+    it "should be encoded as a Static object" do
+      @typed_definition.encoding.should == Flails::IO::AMF3::Types::OBJECT_STATIC
     end
   end
   

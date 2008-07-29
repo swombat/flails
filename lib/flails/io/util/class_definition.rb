@@ -33,6 +33,10 @@ module Flails
           @attributes
         end
         
+        def encoding
+          @flex_class_name.nil? ? Flails::IO::AMF3::Types::OBJECT_PROXY : Flails::IO::AMF3::Types::OBJECT_STATIC
+        end
+        
       private
         def initialize(klass)
           @flex_class_name        = @@class_name_mappings[klass.class.to_s]
