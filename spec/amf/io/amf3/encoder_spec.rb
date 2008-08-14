@@ -159,6 +159,21 @@ describe Flails::IO::AMF3::Encoder do
 
       test_run(@encoder, data)
     end
+    
+    it "should support a custom array type" do
+      @encoder.array_collection_type = "flex.messaging.io.ArrayCollection"
+
+      data = {
+        [0, 1, 2, 3]          => "\x0a\x07flex.messaging.io.ArrayCollection\x09\x09\x01\x04\x00\x04\x01\x04\x02\x04\x03",
+        ["Hello", 2, 3, 4, 5] => "\x0a\x07flex.messaging.io.ArrayCollection\x09\x0b\x01\x06\x0b\x48\x65\x6c\x6c\x6f\x04\x02\x04\x03\x04\x04\x04\x05"
+      }
+      
+      test_run(@encoder, data)      
+    end
+    
+    after(:each) do
+      @encoder.array_collection_type = nil
+    end
   end
   
   #=========================

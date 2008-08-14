@@ -18,6 +18,7 @@ require 'lib/flails/io/amf3/context'
 require 'lib/flails/io/amf3/encoder'
 
 require 'lib/flails/io/util/acknowledge_message'
+require 'lib/flails/io/util/reference_wrapper'
 
 require 'spec/shared_context_spec'
 

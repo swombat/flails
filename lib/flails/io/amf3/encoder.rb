@@ -6,6 +6,7 @@ module Flails
       class Encoder
 
         attr_reader :stream, :writer
+        attr_accessor :array_collection_type
         
         #=====================
         # Initialization and parameters
@@ -31,7 +32,7 @@ module Flails
           when TrueClass                          : encode_boolean          value
           when FalseClass                         : encode_boolean          value
           when String                             : encode_string           value, include_type
-          when Array                              : encode_array            value, include_type
+          when Array                              : array_collection_type.blank? ? encode_array(value, include_type) : encode_array_collection(value)
           when Hash                               : encode_hash             value.stringify_keys, include_type
           when Time                               : encode_date             value, include_type
           when Date                               : encode_date             value.to_time, include_type
@@ -136,6 +137,17 @@ module Flails
             self.encode(v)
           end
         end
+
+        def encode_array_collection(value) # no include_type, as it makes no sense here
+          @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT)
+
+          return if try_reference(Flails::IO::Util::ReferenceWrapper.new(value), :objects)
+          
+          @writer.write(:uchar, 0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
+          @writer.write(:string, array_collection_type)
+          
+          self.encode_array value
+        end
         
         #=====================
         # Objects
@@ -162,14 +174,7 @@ module Flails
 
           if class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
             class_definition.attributes.each do |key|
-              if key.to_s == "body" && !value.renderable_attributes[key].nil?
-                RAILS_DEFAULT_LOGGER.debug "\n\nbody:\n#{value.renderable_attributes[key].inspect}\n---\n\n"
-                RAILS_DEFAULT_LOGGER.debug "\nstream before: #{@stream.inspect}\n"
-              end
               self.encode(value.renderable_attributes[key])
-              if key.to_s == "body"
-                RAILS_DEFAULT_LOGGER.debug "\nstream after: #{@stream.inspect}\n"
-              end
             end
           elsif class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_DYNAMIC
             class_definition.attributes.each do |key|
