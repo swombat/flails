@@ -10,7 +10,9 @@ module RubyAMF
       attr_accessor :output_stream
   
       attr_accessor :bodys
-    
+      
+      attr_accessor :outheaders
+      
       #create a new AMFObject, pass the raw request data
       def initialize(rw = nil)
         @input_stream = rw
@@ -27,6 +29,10 @@ module RubyAMF
         @header_table[amf_header.name] = amf_header
       end
 
+      def bodies
+        self.bodys
+      end
+    
       #get a header by it's key
       def get_header_by_key(key)
         @header_table[key]||false

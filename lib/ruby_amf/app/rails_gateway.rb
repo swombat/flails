@@ -18,7 +18,7 @@ module RubyAMF
                                               ]
       end
 
-      #all get and post requests circulate throught his method
+      # All get and post requests circulate throught his method
       def service(raw)
         amfobj = RubyAMF::App::AMFObject.new(raw)
         RubyAMF::Filters::FilterChain.new.run(amfobj)

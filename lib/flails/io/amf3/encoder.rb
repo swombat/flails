@@ -155,7 +155,7 @@ module Flails
             
             if class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
               class_definition.attributes.each do |key|
-                self.encode_string(key, false)
+                self.encode_string(key.to_s, false)
               end
             end
           end
@@ -166,7 +166,7 @@ module Flails
             end
           elsif class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_DYNAMIC
             class_definition.attributes.each do |key|
-              self.encode_string(key, false)
+              self.encode_string(key.to_s, false)
               self.encode(value.renderable_attributes[key])
             end
             @writer.write(:uchar, 0x01)

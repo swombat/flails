@@ -89,7 +89,7 @@ module Flails
           
           @writer.write(:uchar, Flails::IO::AMF0::Types::OBJECT) if include_type
           value.each do |key, val|
-            encode_string(key, false)
+            encode_string(key.to_s, false)
             encode(val)
           end
           

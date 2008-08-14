@@ -28,7 +28,7 @@ module RubyAMF
         
         attr_accessor :ignore_fields, :use_array_collection, :default_mapping_scope,
         :force_active_record_ids, :attribute_names, :use_ruby_date_time, :current_mapping_scope, :check_for_associations,
-        :translate_case, :assume_types, :hash_key_access  #the rails parameter mapping type
+        :translate_case, :assume_types, :hash_key_access, :use_flails_serializer
         
         def register(mapping)  #register a value object map
           #build out ignore field logic
