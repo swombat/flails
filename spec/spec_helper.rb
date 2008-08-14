@@ -17,7 +17,17 @@ require 'lib/flails/io/amf3/types'
 require 'lib/flails/io/amf3/context'
 require 'lib/flails/io/amf3/encoder'
 
+require 'lib/flails/io/util/acknowledge_message'
+
 require 'spec/shared_context_spec'
+
+class FakeLogger
+  def debug(*args)
+    
+  end
+end
+
+RAILS_DEFAULT_LOGGER = FakeLogger.new
 
 module AMFEncoderHelper
   def test_run(encoder, data)
@@ -47,3 +57,5 @@ class RenderableObject2 < RenderableObject
 end
 class RenderableObject3 < RenderableObject
 end
+
+Flails::IO::Util::ClassDefinition.class_name_mappings = { Flails::IO::Util::AcknowledgeMessage.to_s => "flex.messaging.messages.AcknowledgeMessage" }

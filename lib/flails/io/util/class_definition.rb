@@ -20,6 +20,11 @@ module Flails
           @@class_name_mappings.merge!(class_name_mappings)
         end
         
+        def self.class_name_mappings
+          @@class_name_mappings ||= {}
+          @@class_name_mappings
+        end
+        
         #======================
         # Instance Methods
         
@@ -34,18 +39,18 @@ module Flails
         end
         
         def sealed_attributes_count
-          @flex_class_name.nil? || @flex_class_name.blank? ? 0 : @attributes.length
+          encoding == Flails::IO::AMF3::Types::OBJECT_DYNAMIC ? 0 : @attributes.length
         end
         
         def encoding
-          @flex_class_name.nil? ? Flails::IO::AMF3::Types::OBJECT_DYNAMIC : Flails::IO::AMF3::Types::OBJECT_STATIC
+          @flex_class_name.blank? ? Flails::IO::AMF3::Types::OBJECT_DYNAMIC : Flails::IO::AMF3::Types::OBJECT_STATIC
         end
         
       private
-        def initialize(klass)
-          @flex_class_name        = @@class_name_mappings[klass.class.to_s]
-          @attributes             = Hash === klass.renderable_attributes ? klass.renderable_attributes.keys : klass.renderable_attributes
-          @@mappings[klass.class] = self
+        def initialize(object)
+          @flex_class_name          = @@class_name_mappings[object.class.to_s]
+          @attributes               = Hash === object.renderable_attributes ? object.renderable_attributes.keys : object.renderable_attributes
+          @@mappings[object.class]  = self
         end
         
       end

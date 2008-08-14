@@ -5,7 +5,7 @@ module Flails
     module AMF0
       class Encoder
 
-        attr_reader :stream
+        attr_reader :stream, :writer
         
         #=====================
         # Initialization and parameters

@@ -16,6 +16,7 @@ module RubyAMF
       attr_accessor :results        #the results from a service call  
       attr_accessor :special_handling     #special handling
       attr_accessor :exec           #executeable body
+      attr_accessor :meta           #executeable body
       attr_accessor :_explicitType  #set the explicit type
 
       #create a new amfbody object

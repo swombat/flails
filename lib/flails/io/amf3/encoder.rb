@@ -5,7 +5,7 @@ module Flails
     module AMF3
       class Encoder
 
-        attr_reader :stream
+        attr_reader :stream, :writer
         
         #=====================
         # Initialization and parameters
@@ -162,7 +162,14 @@ module Flails
 
           if class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
             class_definition.attributes.each do |key|
+              if key.to_s == "body" && !value.renderable_attributes[key].nil?
+                RAILS_DEFAULT_LOGGER.debug "\n\nbody:\n#{value.renderable_attributes[key].inspect}\n---\n\n"
+                RAILS_DEFAULT_LOGGER.debug "\nstream before: #{@stream.inspect}\n"
+              end
               self.encode(value.renderable_attributes[key])
+              if key.to_s == "body"
+                RAILS_DEFAULT_LOGGER.debug "\nstream after: #{@stream.inspect}\n"
+              end
             end
           elsif class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_DYNAMIC
             class_definition.attributes.each do |key|
