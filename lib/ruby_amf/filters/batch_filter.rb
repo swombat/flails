@@ -1,6 +1,3 @@
-require 'io/amf_deserializer'
-require 'io/amf_serializer'
-
 module RubyAMF
   module Filters
 

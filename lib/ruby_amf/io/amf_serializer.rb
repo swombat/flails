@@ -4,8 +4,6 @@ module RubyAMF
   module IO
     class AMFSerializer
 
-      require 'io/read_write'
-
       include RubyAMF::Configuration
       include RubyAMF::App
       include RubyAMF::IO::BinaryWriter

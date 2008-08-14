@@ -1,16 +1,10 @@
-require 'io/amf_deserializer'
-require 'io/amf_serializer'
-
 module RubyAMF
   module Filters
     class AMFSerializerFilter
-      include RubyAMF::Configuration
-      include RubyAMF::IO
-      
       def run(amfobj) 
         RAILS_DEFAULT_LOGGER.debug "\n\n==================\n#{amfobj.inspect}\n================\n\n"
 
-        ClassMappings.use_flails_serializer ? encode_amf_object(amfobj) : AMFSerializer.new(amfobj).run
+        RubyAMF::Configuration::ClassMappings.use_flails_serializer ? encode_amf_object(amfobj) : RubyAMF::IO::AMFSerializer.new(amfobj).run
         
         RAILS_DEFAULT_LOGGER.debug "\n\n>>>>>>>>>>>>>>>>>>>\n#{amfobj.output_stream.inspect}\n================\n\n"
       end

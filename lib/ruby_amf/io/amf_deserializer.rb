@@ -1,8 +1,7 @@
 module RubyAMF
   module IO
     class AMFDeserializer
-      require 'io/read_write'
-      
+
       include RubyAMF::App
       include RubyAMF::Configuration
       include RubyAMF::Exceptions
