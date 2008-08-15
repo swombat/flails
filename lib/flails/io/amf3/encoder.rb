@@ -14,7 +14,6 @@ module Flails
           @stream     = stream
           @writer     = Flails::IO::Util::BigEndianWriter.new(@stream)
           @context    = Flails::IO::AMF3::Context.new
-          @no_lookup  = Flails::IO::Util::ReferenceWrapper.new
         end
         
         def stream=(stream)
@@ -33,7 +32,7 @@ module Flails
           when value.is_a?(TrueClass)                         : encode_boolean          value
           when value.is_a?(FalseClass)                        : encode_boolean          value
           when value.is_a?(String)                            : encode_string           value, include_type
-          when value.is_a?(Array)                             : array_collection_type.blank? ? encode_array(value, include_type) : encode_array_collection(value)
+          when value.is_a?(Array)                             : encode_array_wrap       value, include_type
           when value.is_a?(Hash)                              : encode_hash             value.stringify_keys, include_type
           when value.is_a?(Time)                              : encode_date             value, include_type
           when value.is_a?(Date)                              : encode_date             value.to_time, include_type
@@ -99,7 +98,7 @@ module Flails
           
           @writer.write(:uchar, Flails::IO::AMF3::Types::DATE) if include_type
           
-          return if try_reference(@no_lookup, :objects)
+          return if try_reference(value, :objects)
           
           @writer.write(:uchar, 0x01)
           @writer.write(:double, value.to_f * 1000.0)
@@ -126,6 +125,10 @@ module Flails
           @writer.write(:uchar, 0x01)
         end        
         
+        def encode_array_wrap(value, include_type=true)
+          array_collection_type.blank? ? encode_array(value, include_type) : encode_array_collection(value)
+        end
+        
         def encode_array(value, include_type=true)
           @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
 
@@ -142,7 +145,7 @@ module Flails
         def encode_array_collection(value) # no include_type, as it makes no sense here
           @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT)
 
-          try_reference(@no_lookup, :objects)
+          try_reference(Flails::IO::Util::ReferenceWrapper.new(value), :objects)
           
           unless try_reference(array_collection_type, :classes)
             @writer.write(:uchar, 0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
@@ -197,7 +200,6 @@ module Flails
         # the reference and returns false. This code was extracted to DRY out the encoding methods.
         def try_reference(value, subcontext_symbol)
           subcontext = @context.send(subcontext_symbol)
-          return false && subcontext.increment_counter if value == @no_lookup
           if subcontext.has_reference_for?(value)
             encode_reference(value, subcontext, subcontext_symbol)
             return true
