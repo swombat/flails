@@ -197,7 +197,6 @@ module Flails
         def try_reference(value, subcontext_symbol)
           subcontext = @context.send(subcontext_symbol)
           if subcontext.has_reference_for?(value)
-            RAILS_DEFAULT_LOGGER.debug "\nFound reference for '#{value.inspect}' in #{subcontext.inspect}\n\n"
             encode_reference(value, subcontext, subcontext_symbol)
             return true
           else
