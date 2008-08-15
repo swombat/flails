@@ -3,7 +3,7 @@ module Flails
     module Filter
       class AMFSerializerFilter
         def array_collection_type
-          RubyAMF::Configuration::ClassMappings.use_array_collection == true ? "mx...ArrayCollection" : RubyAMF::Configuration::ClassMappings.use_array_collection
+          RubyAMF::Configuration::ClassMappings.use_array_collection == true ? "flex.messaging.io.ArrayCollection" : RubyAMF::Configuration::ClassMappings.use_array_collection
         end
         
         def serialize(amf_object)

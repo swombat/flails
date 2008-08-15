@@ -14,7 +14,7 @@ module Flails
         
         def method_missing(id, *args)
           @results_hash.send(id, args)
-        end        
+        end
       end
     end
   end
