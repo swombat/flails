@@ -11,9 +11,10 @@ module Flails
         #=====================
         # Initialization and parameters
         def initialize(stream="")
-          @stream   = stream
-          @writer   = Flails::IO::Util::BigEndianWriter.new(@stream)
-          @context  = Flails::IO::AMF3::Context.new
+          @stream     = stream
+          @writer     = Flails::IO::Util::BigEndianWriter.new(@stream)
+          @context    = Flails::IO::AMF3::Context.new
+          @no_lookup  = Flails::IO::Util::ReferenceWrapper.new
         end
         
         def stream=(stream)
@@ -98,7 +99,7 @@ module Flails
           
           @writer.write(:uchar, Flails::IO::AMF3::Types::DATE) if include_type
           
-          return if try_reference(value, :objects)
+          return if try_reference(@no_lookup, :objects)
           
           @writer.write(:uchar, 0x01)
           @writer.write(:double, value.to_f * 1000.0)
@@ -141,7 +142,7 @@ module Flails
         def encode_array_collection(value) # no include_type, as it makes no sense here
           @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT)
 
-          try_reference(Flails::IO::Util::ReferenceWrapper.new(value), :objects)
+          try_reference(@no_lookup, :objects)
           
           unless try_reference(array_collection_type, :classes)
             @writer.write(:uchar, 0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
@@ -196,6 +197,7 @@ module Flails
         # the reference and returns false. This code was extracted to DRY out the encoding methods.
         def try_reference(value, subcontext_symbol)
           subcontext = @context.send(subcontext_symbol)
+          return false && subcontext.increment_counter if value == @no_lookup
           if subcontext.has_reference_for?(value)
             encode_reference(value, subcontext, subcontext_symbol)
             return true
