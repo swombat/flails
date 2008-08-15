@@ -25,6 +25,10 @@ module Flails
         #=====================
         # Key interface
         def encode(value, include_type=true)
+          # if Project === value
+          #   RAILS_DEFAULT_LOGGER.debug "\n\n\n===============\n#{value.renderable_attributes}\n\n"
+          # end
+          
           case value
           when Numeric                            : encode_number           value, include_type
           when Flails::IO::Util::UndefinedType    : encode_undefined_type
@@ -38,6 +42,14 @@ module Flails
           when Date                               : encode_date             value.to_time, include_type
           when DateTime                           : encode_date             value.to_time, include_type
           when Flails::App::Model::Renderable     : encode_renderable       value, include_type
+          else
+            # Sometimes, in dev, ActiveRecords lose their modules and aren't recognised...
+            if value.respond_to?(:renderable_attributes)
+              encode_renderable value, include_type
+            else
+              raise InvalidInputException, "Unknown AMF Type: Cannot render #{value.inspect}, not found in " +
+                                              "#{Flails::IO::Util::ClassDefinition.class_name_mappings.inspect}, #{Flails::IO::Util::ClassDefinition.mappings.inspect}"
+            end
           end
         end
         

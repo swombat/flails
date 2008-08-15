@@ -44,6 +44,7 @@ module Flails
           
             encoder.writer.write :char, Flails::IO::AMF0::Types::AMF3
             amf3_encoder = Flails::IO::AMF3::Encoder.new(encoder.stream) # Reset the context for each body, but keep the stream
+            amf3_encoder.array_collection_type = RubyAMF::Configuration::ClassMappings.use_array_collection
             
             message = Flails::IO::Util::AcknowledgeMessage.new(body.results)
             

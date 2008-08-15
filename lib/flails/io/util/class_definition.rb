@@ -24,6 +24,11 @@ module Flails
           @@class_name_mappings ||= {}
           @@class_name_mappings
         end
+
+        def self.mappings
+          @@mappings ||= {}
+          @@mappings
+        end
         
         #======================
         # Instance Methods
