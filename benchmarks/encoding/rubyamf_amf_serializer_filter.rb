@@ -50,7 +50,7 @@ end
 @results_without_flails = []
 @results_with_flails = []
 
-@test_points = [100, 500, 1000, 2000]
+@test_points = [100, 500, 1000, 2000, 5000, 10000]
 
 @test_points.each do |objects|
   objects.times { @test_data << MockFile.new }
@@ -63,3 +63,18 @@ puts "RubyAMF:\t#{@results_without_flails.join("\t")}"
 puts "Flails:\t\t#{@results_with_flails.join("\t")}"
 
 
+
+# Historical...
+# Initial state:
+# Objects:  100 500 1000  2000
+# RubyAMF:  0.051 0.185 0.486 1.002
+# Flails:   0.08  0.901 5.759 27.545
+#
+# Notes:
+# This is a heavily optimised version of RubyAMF, not vanilla, which performs much worse
+# This is Flails at the point where it's not had any optimisations whatsoever, still uses an Array for references, etc.
+#
+# After switching from using an Array to using a Hash - 95% improvement already
+# Objects:  100 500 1000  2000  5000  10000
+# RubyAMF:  0.05  0.179 0.502 0.993 2.003 4.065
+# Flails:   0.061 0.208 0.629 1.139 3.532 6.864

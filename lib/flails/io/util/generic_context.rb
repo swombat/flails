@@ -3,32 +3,43 @@ module Flails
     module Util
       class GenericContext
 
-        attr_reader :objects
-        
         def initialize
-          @objects = []
+          @objects = {}
+          @counter = 0
         end
         
         def add(obj)
-          @objects << obj
+          if (obj.is_a?(Hash))
+            @objects["Hash=>#{obj.inspect}"] = @counter
+          else
+            @objects[obj] = @counter
+          end
+          @counter += 1
         end
 
         def clear!
-          @objects = []
-        end
-        
-        def get_by_reference(reference)
-          @objects[reference]
+          @objects = {}
         end
         
         def get_reference(object)
-          @objects.index(object)
+          if (object.is_a?(Hash))
+            @objects["Hash=>#{object.inspect}"]
+          else
+            @objects[object]
+          end
         end
         
         def has_reference_for?(object)
-          self.get_reference(object) != nil
+          if (object.is_a?(Hash))
+            @objects.has_key?("Hash=>#{object.inspect}")
+          else
+            @objects.has_key?(object)
+          end
         end
 
+        def objects
+          @objects
+        end
       end
     end
   end
