@@ -83,11 +83,9 @@ module Flails
         def encode_reference(value, subcontext, subcontext_symbol)
           
           if subcontext_symbol == :classes
-            shift = 2
-            add   = 1
+            shift, add = 2, 1
           else
-            shift = 1
-            add   = 0
+            shift, add = 1, 0
           end
           
           @writer.write(:vlint, (subcontext.get_reference(value) << shift) + add)
@@ -143,11 +141,12 @@ module Flails
         def encode_array_collection(value) # no include_type, as it makes no sense here
           @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT)
 
-          return if try_reference(Flails::IO::Util::ReferenceWrapper.new(value), :objects)
+          try_reference(Flails::IO::Util::ReferenceWrapper.new(value), :objects)
           
-          @writer.write(:uchar, 0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
-          self.encode_string array_collection_type, false
-          try_reference(Flails::IO::Util::ReferenceWrapper.new(array_collection_type), :classes)
+          unless try_reference(array_collection_type, :classes)
+            @writer.write(:uchar, 0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
+            self.encode_string array_collection_type, false
+          end
           
           self.encode_array value
         end
@@ -160,8 +159,23 @@ module Flails
           return if try_reference(value, :objects)
           
           class_definition = Flails::IO::Util::ClassDefinition::get(value)
+          self.encode_class_definition class_definition
+
+          if class_definition.static?
+            class_definition.attributes.each do |key|
+              self.encode(value.renderable_attributes[key])
+            end
+          elsif class_definition.dynamic?
+            class_definition.attributes.each do |key|
+              self.encode_string(key.to_s, false)
+              self.encode(value.renderable_attributes[key])
+            end
+            @writer.write(:uchar, 0x01)
+          end
           
-          # TODO: Re-enable class definition references
+        end
+        
+        def encode_class_definition(class_definition)
           unless try_reference(class_definition, :classes)
             @writer.write(:vlint,   (class_definition.sealed_attributes_count << 4) |
                                     (class_definition.encoding << 2) |
@@ -174,20 +188,7 @@ module Flails
                 self.encode_string(key.to_s, false)
               end
             end
-          end
-
-          if class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
-            class_definition.attributes.each do |key|
-              self.encode(value.renderable_attributes[key])
-            end
-          elsif class_definition.encoding == Flails::IO::AMF3::Types::OBJECT_DYNAMIC
-            class_definition.attributes.each do |key|
-              self.encode_string(key.to_s, false)
-              self.encode(value.renderable_attributes[key])
-            end
-            @writer.write(:uchar, 0x01)
-          end
-          
+          end          
         end
 
       private

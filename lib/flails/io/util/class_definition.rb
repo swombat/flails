@@ -51,6 +51,14 @@ module Flails
           @flex_class_name.blank? ? Flails::IO::AMF3::Types::OBJECT_DYNAMIC : Flails::IO::AMF3::Types::OBJECT_STATIC
         end
         
+        def static?
+          encoding == Flails::IO::AMF3::Types::OBJECT_STATIC
+        end
+        
+        def dynamic?
+          encoding == Flails::IO::AMF3::Types::OBJECT_DYNAMIC
+        end
+        
       private
         def initialize(object)
           @flex_class_name          = @@class_name_mappings[object.class.to_s]
