@@ -25,31 +25,21 @@ module Flails
         #=====================
         # Key interface
         def encode(value, include_type=true)
-          # if Project === value
-          #   RAILS_DEFAULT_LOGGER.debug "\n\n\n===============\n#{value.renderable_attributes}\n\n"
-          # end
-          
-          case value
-          when Numeric                            : encode_number           value, include_type
-          when Flails::IO::Util::UndefinedType    : encode_undefined_type
-          when nil                                : encode_nil
-          when TrueClass                          : encode_boolean          value
-          when FalseClass                         : encode_boolean          value
-          when String                             : encode_string           value, include_type
-          when Array                              : array_collection_type.blank? ? encode_array(value, include_type) : encode_array_collection(value)
-          when Hash                               : encode_hash             value.stringify_keys, include_type
-          when Time                               : encode_date             value, include_type
-          when Date                               : encode_date             value.to_time, include_type
-          when DateTime                           : encode_date             value.to_time, include_type
-          when Flails::App::Model::Renderable     : encode_renderable       value, include_type
+          case
+          when value.is_a?(Numeric)                           : encode_number           value, include_type
+          when value.is_a?(Flails::IO::Util::UndefinedType)   : encode_undefined_type
+          when value.nil?                                     : encode_nil
+          when value.is_a?(TrueClass)                         : encode_boolean          value
+          when value.is_a?(FalseClass)                        : encode_boolean          value
+          when value.is_a?(String)                            : encode_string           value, include_type
+          when value.is_a?(Array)                             : array_collection_type.blank? ? encode_array(value, include_type) : encode_array_collection(value)
+          when value.is_a?(Hash)                              : encode_hash             value.stringify_keys, include_type
+          when value.is_a?(Time)                              : encode_date             value, include_type
+          when value.is_a?(Date)                              : encode_date             value.to_time, include_type
+          when value.is_a?(DateTime)                          : encode_date             value.to_time, include_type
+          when value.is_a?(Flails::App::Model::Renderable)    : encode_renderable       value, include_type
           else
-            # Sometimes, in dev, ActiveRecords lose their modules and aren't recognised...
-            if value.respond_to?(:renderable_attributes)
-              encode_renderable value, include_type
-            else
-              raise InvalidInputException, "Unknown AMF Type: Cannot render #{value.inspect}, not found in " +
-                                              "#{Flails::IO::Util::ClassDefinition.class_name_mappings.inspect}, #{Flails::IO::Util::ClassDefinition.mappings.inspect}"
-            end
+            raise InvalidInputException, "Unknown AMF Type: Cannot render #{value.inspect}"
           end
         end
         
@@ -156,7 +146,8 @@ module Flails
           return if try_reference(Flails::IO::Util::ReferenceWrapper.new(value), :objects)
           
           @writer.write(:uchar, 0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
-          @writer.write(:string, array_collection_type)
+          self.encode_string array_collection_type, false
+          try_reference(Flails::IO::Util::ReferenceWrapper.new(array_collection_type), :classes)
           
           self.encode_array value
         end
@@ -170,6 +161,7 @@ module Flails
           
           class_definition = Flails::IO::Util::ClassDefinition::get(value)
           
+          # TODO: Re-enable class definition references
           unless try_reference(class_definition, :classes)
             @writer.write(:vlint,   (class_definition.sealed_attributes_count << 4) |
                                     (class_definition.encoding << 2) |
@@ -204,6 +196,7 @@ module Flails
         def try_reference(value, subcontext_symbol)
           subcontext = @context.send(subcontext_symbol)
           if subcontext.has_reference_for?(value)
+            RAILS_DEFAULT_LOGGER.debug "\nFound reference for '#{value.inspect}' in #{subcontext.inspect}\n\n"
             encode_reference(value, subcontext, subcontext_symbol)
             return true
           else

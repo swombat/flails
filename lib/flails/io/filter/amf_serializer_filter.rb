@@ -2,6 +2,10 @@ module Flails
   module IO
     module Filter
       class AMFSerializerFilter
+        def array_collection_type
+          RubyAMF::Configuration::ClassMappings.use_array_collection == true ? "mx...ArrayCollection" : RubyAMF::Configuration::ClassMappings.use_array_collection
+        end
+        
         def serialize(amf_object)
           encoder = Flails::IO::AMF0::Encoder.new(amf_object.output_stream)
         
@@ -44,7 +48,7 @@ module Flails
           
             encoder.writer.write :char, Flails::IO::AMF0::Types::AMF3
             amf3_encoder = Flails::IO::AMF3::Encoder.new(encoder.stream) # Reset the context for each body, but keep the stream
-            amf3_encoder.array_collection_type = RubyAMF::Configuration::ClassMappings.use_array_collection
+            amf3_encoder.array_collection_type = array_collection_type
             
             message = Flails::IO::Util::AcknowledgeMessage.new(body.results)
             

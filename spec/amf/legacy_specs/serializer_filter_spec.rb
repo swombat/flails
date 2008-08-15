@@ -12,6 +12,7 @@ describe Flails::IO::Filter::AMFSerializerFilter do
   
   before(:each) do
     @serializer = Flails::IO::Filter::AMFSerializerFilter.new
+    @serializer.stub!(:array_collection_type, false)
   end
   
   describe "encoding a Ping" do
