@@ -13,7 +13,6 @@ require 'config/test_classes'
 
 
 @test_data = []
-2000.times { @test_data << MockFile.new }
 
 @amf_object = RubyAMF::App::AMFObject.new
 @amf_object.input_stream = "-"
@@ -39,21 +38,28 @@ require 'config/test_classes'
 @amf_object.bodies << @amf_body
 @amf_object.output_stream = ""
 
-
 @serializer = RubyAMF::Filters::AMFSerializerFilter.new
 
-RubyAMF::Configuration::ClassMappings.use_flails_serializer = false
+def run(with_flails)
+  RubyAMF::Configuration::ClassMappings.use_flails_serializer = with_flails
+  start = Time.now.to_f
+  @serializer.run(@amf_object)
+  return Time.now.to_f - start
+end
 
-puts "Without Flails"
-start = Time.now.to_f
-puts "Started - #{start}"
-@serializer.run(@amf_object)
-puts "Finished - #{Time.now.to_f - start}"
+@results_without_flails = []
+@results_with_flails = []
 
-RubyAMF::Configuration::ClassMappings.use_flails_serializer = true
+@test_points = [100, 500, 1000, 2000]
 
-puts "With Flails"
-start = Time.now.to_f
-puts "Started - #{start}"
-@serializer.run(@amf_object)
-puts "Finished - #{Time.now.to_f - start}"
+@test_points.each do |objects|
+  objects.times { @test_data << MockFile.new }
+  @results_without_flails << run(false).round_with_precision(3)
+  @results_with_flails << run(true).round_with_precision(3)
+end
+
+puts "Objects:\t#{@test_points.join("\t")}"
+puts "RubyAMF:\t#{@results_without_flails.join("\t")}"
+puts "Flails:\t\t#{@results_with_flails.join("\t")}"
+
+
