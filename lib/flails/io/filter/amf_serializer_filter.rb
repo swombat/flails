@@ -7,8 +7,6 @@ module Flails
         end
         
         def serialize(amf_object)
-          RAILS_DEFAULT_LOGGER.debug("\n\n======AMF OBJECT:\n#{amf_object.inspect}\n=====\n\n")
-          
           encoder = Flails::IO::AMF0::Encoder.new(amf_object.output_stream)
         
           encoder.writer.write :short, 3  # AMF version number
