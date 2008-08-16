@@ -59,4 +59,7 @@ end
 class RenderableObject3 < RenderableObject
 end
 
-Flails::IO::Util::ClassDefinition.class_name_mappings = { Flails::IO::Util::AcknowledgeMessage.to_s => "flex.messaging.messages.AcknowledgeMessage" }
+Flails::IO::Util::ClassDefinition.class_name_mappings = { 
+  Flails::IO::Util::AcknowledgeMessage.to_s => "flex.messaging.messages.AcknowledgeMessage",
+  Flails::IO::AMF::FlexTypes::ErrorMessage.to_s => "flex.messaging.messages.ErrorMessage"
+}

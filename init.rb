@@ -10,7 +10,10 @@ module Flails
     load File.expand_path(RAILS_ROOT) + '/config/rubyamf_class_mappings.rb'
     load File.expand_path(RAILS_ROOT) + '/config/rubyamf_parameter_mappings.rb'
 
-    ::Flails::IO::Util::ClassDefinition.class_name_mappings = { ::Flails::IO::Util::AcknowledgeMessage.to_s => "flex.messaging.messages.AcknowledgeMessage" }
+    ::Flails::IO::Util::ClassDefinition.class_name_mappings = { 
+      ::Flails::IO::Util::AcknowledgeMessage.to_s => "flex.messaging.messages.AcknowledgeMessage",
+      ::Flails::IO::AMF::FlexTypes::ErrorMessage.to_s => "flex.messaging.messages.ErrorMessage"
+    }
   end
 end
 

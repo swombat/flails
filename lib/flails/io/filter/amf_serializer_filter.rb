@@ -7,6 +7,8 @@ module Flails
         end
         
         def serialize(amf_object)
+          RAILS_DEFAULT_LOGGER.debug("\n\n======AMF OBJECT:\n#{amf_object.inspect}\n=====\n\n")
+          
           encoder = Flails::IO::AMF0::Encoder.new(amf_object.output_stream)
         
           encoder.writer.write :short, 3  # AMF version number
@@ -44,11 +46,19 @@ module Flails
             encoder.writer.write :char, Flails::IO::AMF0::Types::AMF3
             amf3_encoder = Flails::IO::AMF3::Encoder.new(encoder.stream) # Reset the context for each body, but keep the stream
             amf3_encoder.array_collection_type = array_collection_type
-            
-            amf3_encoder.encode Flails::IO::Util::AcknowledgeMessage.new(body.results)
+
+            amf3_encoder.encode wrap_results(body.results)
           end
         
           encoder.stream
+        end
+        
+        def wrap_results(results)
+          if results.is_a?(RubyAMF::Exceptions::AS3Fault)
+            Flails::IO::AMF::FlexTypes::ErrorMessage.new(results)
+          else
+            Flails::IO::Util::AcknowledgeMessage.new(results)
+          end
         end
         
       end
