@@ -39,7 +39,7 @@ module Flails
         def write(type, value, stream=@stream)
           unless TYPES[type].nil?
             stream << [value].pack(TYPES[type])
-          else 
+          else
             unless EXTENDED_TYPES[type].nil?
               extended_write(type, value, stream)
             else
