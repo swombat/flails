@@ -19,6 +19,10 @@ require 'lib/flails/io/amf3/encoder'
 
 require 'lib/flails/io/util/acknowledge_message'
 require 'lib/flails/io/util/reference_wrapper'
+require 'lib/flails/io/amf/flex_types/error_message'
+
+require 'lib/ruby_amf/util/vo_hash'
+require 'lib/ruby_amf/exceptions/as3_fault'
 
 require 'spec/shared_context_spec'
 

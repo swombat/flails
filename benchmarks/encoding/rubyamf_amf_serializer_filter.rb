@@ -53,9 +53,14 @@ end
 @test_points = [100, 500, 1000, 2000, 5000, 10000]
 
 @test_points.each do |objects|
+  puts "Objects: #{objects}"
   objects.times { @test_data << MockFile.new }
-  @results_without_flails << run(false).round_with_precision(3)
-  @results_with_flails << run(true).round_with_precision(3)
+  wo = run(false).round_with_precision(3)
+  puts "Without: #{wo}"
+  @results_without_flails << wo
+  w = run(true).round_with_precision(3)
+  puts "With: #{w}"
+  @results_with_flails << w
 end
 
 puts "Objects:\t#{@test_points.join("\t")}"
@@ -78,10 +83,4 @@ puts "Flails:\t\t#{@results_with_flails.join("\t")}"
 # Objects:  100 500 1000  2000  5000  10000
 # RubyAMF:  0.05  0.179 0.502 0.993 2.003 4.065
 # Flails:   0.061 0.208 0.629 1.139 3.532 6.864
-#
-# After allowing dates to bypass the encoding/lookup process via a @no_lookup object
-# Objects:  100 500 1000  2000  5000  10000
-# RubyAMF:  0.052 0.184 0.487 1.026 1.957 3.786
-# Flails:   0.065 0.209 0.615 1.125 3.426 6.211
-#
 #
