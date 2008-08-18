@@ -53,8 +53,9 @@ end
 @test_points = [100, 500, 1000, 2000, 5000, 10000]
 
 @test_points.each do |objects|
-  puts "Objects: #{objects}"
+  puts "Adding #{objects} objects..."
   objects.times { @test_data << MockFile.new }
+  puts "Starting: "
   wo = run(false).round_with_precision(3)
   puts "Without: #{wo}"
   @results_without_flails << wo

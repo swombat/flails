@@ -12,6 +12,10 @@ module Flails
           @counter += 1
         end
         
+        def counter
+          @counter
+        end
+        
         def add(obj)
           if (obj.is_a?(Hash))
             @objects["Hash=>#{obj.inspect}"] = @counter
