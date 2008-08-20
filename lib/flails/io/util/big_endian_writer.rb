@@ -48,6 +48,35 @@ module Flails
           end
         end
         
+        def f_write_vlint(value, stream=@stream)
+          value += 0x20000000 if value < 0
+
+          case value
+          when 0..0x7f:               stream << [value].pack('c')
+          when 0x80..0x3fff:          stream << [0x80 | ((value >> 7) & 0xff)].pack('c') +
+                                                [value & 0x7f].pack('c')
+          when 0x4000..0x1fffff:      stream << [0x80 | ((value >> 14) & 0xff)].pack('c') +
+                                                [0x80 | ((value >> 7) & 0xff)].pack('c') +
+                                                [value & 0x7f].pack('c')
+          when 0x200000..0x3fffffff:  stream << [0x80 | ((value >> 22) & 0xff)].pack('c') +
+                                                [0x80 | ((value >> 15) & 0xff)].pack('c') +
+                                                [0x80 | ((value >> 8) & 0xff)].pack('c') +
+                                                [value & 0xff].pack('c')
+          end
+        end
+        
+        def f_write_string(value, stream=@stream)
+          stream << value
+        end
+        
+        def f_write_uchar(value, stream=@stream)
+          stream << [value].pack('c')
+        end
+        
+        def f_write_double(value, stream=@stream)
+          stream << [value].pack('G')
+        end
+                
       private
         def local_big_endian?
           [0x12345678].pack("L") == "\x12\x34\x56\x78"
@@ -59,19 +88,32 @@ module Flails
 
         def write_variable_length_integer(value, stream=@stream)
           value += 0x20000000 if value < 0
-          
+
           case value
-          when 0..0x7f:               write(:uchar, value, stream)
-          when 0x80..0x3fff:          write(:uchar, 0x80 | ((value >> 7) & 0xff), stream)
-                                      write(:uchar, value & 0x7f, stream)
-          when 0x4000..0x1fffff:      write(:uchar, 0x80 | ((value >> 14) & 0xff), stream)
-                                      write(:uchar, 0x80 | ((value >> 7) & 0xff), stream)
-                                      write(:uchar, value & 0x7f, stream)
-          when 0x200000..0x3fffffff:  write(:uchar, 0x80 | ((value >> 22) & 0xff), stream)
-                                      write(:uchar, 0x80 | ((value >> 15) & 0xff), stream)
-                                      write(:uchar, 0x80 | ((value >> 8) & 0xff), stream)
-                                      write(:uchar, value & 0xff, stream)
+          when 0..0x7f:               stream << [value].pack('c')
+          when 0x80..0x3fff:          stream << [0x80 | ((value >> 7) & 0xff)].pack('c') +
+                                                [value & 0x7f].pack('c')
+          when 0x4000..0x1fffff:      stream << [0x80 | ((value >> 14) & 0xff)].pack('c') +
+                                                [0x80 | ((value >> 7) & 0xff)].pack('c') +
+                                                [value & 0x7f].pack('c')
+          when 0x200000..0x3fffffff:  stream << [0x80 | ((value >> 22) & 0xff)].pack('c') +
+                                                [0x80 | ((value >> 15) & 0xff)].pack('c') +
+                                                [0x80 | ((value >> 8) & 0xff)].pack('c') +
+                                                [value & 0xff].pack('c')
           end
+          
+          # case value
+          # when 0..0x7f:               write(:uchar, value, stream)
+          # when 0x80..0x3fff:          write(:uchar, 0x80 | ((value >> 7) & 0xff), stream)
+          #                             write(:uchar, value & 0x7f, stream)
+          # when 0x4000..0x1fffff:      write(:uchar, 0x80 | ((value >> 14) & 0xff), stream)
+          #                             write(:uchar, 0x80 | ((value >> 7) & 0xff), stream)
+          #                             write(:uchar, value & 0x7f, stream)
+          # when 0x200000..0x3fffffff:  write(:uchar, 0x80 | ((value >> 22) & 0xff), stream)
+          #                             write(:uchar, 0x80 | ((value >> 15) & 0xff), stream)
+          #                             write(:uchar, 0x80 | ((value >> 8) & 0xff), stream)
+          #                             write(:uchar, value & 0xff, stream)
+          # end
         end
       end
     end

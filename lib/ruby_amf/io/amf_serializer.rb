@@ -17,7 +17,7 @@ module RubyAMF
       end
    
       def reset_referencables
-        @stored_objects = RBTree.new
+        @stored_objects = {}
         @stored_strings = {} # hash is way faster than array
         @stored_strings[""] = true # add this in automatically
         @floats_cache = {}
