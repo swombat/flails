@@ -47,37 +47,37 @@ module Flails
         # Primitives
         def encode_number(value, include_type=true)
           if value.integer? && (-0x10000000..0xfffffff).member?(value)
-            @writer.write(:uchar, Flails::IO::AMF3::Types::INTEGER) if include_type
-            @writer.write(:vlint, value)
+            @writer.f_write_uchar(Flails::IO::AMF3::Types::INTEGER) if include_type
+            @writer.f_write_vlint(value)
           else
-            @writer.write(:uchar, Flails::IO::AMF3::Types::NUMBER) if include_type
-            @writer.write(:double, value)
+            @writer.f_write_uchar(Flails::IO::AMF3::Types::NUMBER) if include_type
+            @writer.f_write_double(value)
           end
         end
 
         #=====================
         # Strings
         def encode_string(value, include_type=true)
-          @writer.write(:uchar, Flails::IO::AMF3::Types::STRING) if include_type
-
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::STRING) if include_type
+ 
           return if try_reference(value, :strings) if value.length != 0
 
-          @writer.write(:vlint, (value.length << 1) + 1)
-          @writer.write(:string, value)
+          @writer.f_write_vlint((value.length << 1) + 1)
+          @writer.f_write_string(value)
         end
 
         #=====================
         # Special values
         def encode_nil(value=nil)
-          @writer.write(:uchar, Flails::IO::AMF3::Types::NULL)
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::NULL)
         end
         
         def encode_undefined_type(value=Flails::IO::Util::UndefinedType)
-          @writer.write(:uchar, Flails::IO::AMF3::Types::UNDEFINED)
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::UNDEFINED)
         end
 
         def encode_boolean(value=false)
-          @writer.write(:uchar, value ? Flails::IO::AMF3::Types::BOOL_TRUE : Flails::IO::AMF3::Types::BOOL_FALSE)
+          @writer.f_write_uchar(value ? Flails::IO::AMF3::Types::BOOL_TRUE : Flails::IO::AMF3::Types::BOOL_FALSE)
         end
         
         def encode_reference(value, subcontext, subcontext_symbol)
@@ -88,7 +88,11 @@ module Flails
             shift, add = 1, 0
           end
           
-          @writer.write(:vlint, (subcontext.get_reference(value) << shift) + add)
+          @writer.f_write_vlint((subcontext.get_reference(value) << shift) + add)
+        end
+
+        def encode_reference_with_id(value, subcontext)
+          @writer.f_write_vlint(subcontext.get_reference_with_id(value) << 1)
         end
         
         #=====================
@@ -96,12 +100,14 @@ module Flails
         def encode_date(value, include_type=true)
           timezone = 0
           
-          @writer.write(:uchar, Flails::IO::AMF3::Types::DATE) if include_type
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::DATE) if include_type
           
-          return if try_reference(value, :objects)
+          # Optimisation: don't hold date references
+          # return if try_reference(value, :objects)
+          @context.objects.increment_counter
           
-          @writer.write(:uchar, 0x01)
-          @writer.write(:double, value.to_f * 1000.0)
+          @writer.f_write_uchar(0x01)
+          @writer.f_write_double(value.to_f * 1000.0)
         end
         
         #=====================
@@ -109,12 +115,13 @@ module Flails
         # Note: Hashes are assumed to be entirely composed of associative key-value pairs,
         # with no mixed array+hash type, as such a type does not make sense in Ruby.
         def encode_hash(value, include_type=true)
-          @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::ARRAY) if include_type
 
+          # @context.objects.increment_counter
           return if try_reference(value, :objects)
 
           # The AMF3 spec demands that all str based indices be listed first
-          @writer.write(:vlint, 0x01) # (int_values.length << 1) + 1 === 0x01
+          @writer.f_write_vlint(0x01) # (int_values.length << 1) + 1 === 0x01
 
           value.each do |key, val|
             raise Flails::IO::InvalidInputException, "Cannot render Hash with empty string key" if key == ""
@@ -122,7 +129,7 @@ module Flails
             encode(val)
           end
 
-          @writer.write(:uchar, 0x01)
+          @writer.f_write_uchar(0x01)
         end        
         
         def encode_array_wrap(value, include_type=true)
@@ -130,12 +137,13 @@ module Flails
         end
         
         def encode_array(value, include_type=true)
-          @writer.write(:uchar, Flails::IO::AMF3::Types::ARRAY) if include_type
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::ARRAY) if include_type
 
+          # @context.objects.increment_counter
           return if try_reference(value, :objects)
 
-          @writer.write(:vlint, (value.length << 1) + 1)
-          @writer.write(:uchar, 0x01)
+          @writer.f_write_vlint((value.length << 1) + 1)
+          @writer.f_write_uchar(0x01)
           
           value.each do |v|
             self.encode(v)
@@ -143,12 +151,12 @@ module Flails
         end
 
         def encode_array_collection(value) # no include_type, as it makes no sense here
-          @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT)
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::OBJECT)
 
-          try_reference(Flails::IO::Util::ReferenceWrapper.new(value), :objects)
+          @context.objects.increment_counter
           
           unless try_reference(array_collection_type, :classes)
-            @writer.write(:uchar, 0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
+            @writer.f_write_uchar(0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
             self.encode_string array_collection_type, false
           end
           
@@ -158,9 +166,9 @@ module Flails
         #=====================
         # Objects
         def encode_renderable(value, include_type=true)
-          @writer.write(:uchar, Flails::IO::AMF3::Types::OBJECT) if include_type
+          @writer.f_write_uchar(Flails::IO::AMF3::Types::OBJECT) if include_type
           
-          return if try_reference(value, :objects)
+          return if try_object_reference_with_id(value)
           
           class_definition = Flails::IO::Util::ClassDefinition::get(value)
           self.encode_class_definition class_definition
@@ -174,14 +182,14 @@ module Flails
               self.encode_string(key.to_s, false)
               self.encode(value.renderable_attributes[key])
             end
-            @writer.write(:uchar, 0x01)
+            @writer.f_write_uchar(0x01)
           end
           
         end
         
         def encode_class_definition(class_definition)
           unless try_reference(class_definition, :classes)
-            @writer.write(:vlint,   (class_definition.sealed_attributes_count << 4) |
+            @writer.f_write_vlint(  (class_definition.sealed_attributes_count << 4) |
                                     (class_definition.encoding << 2) |
                                     (0x01 << 1) |
                                     0x01)
@@ -205,6 +213,16 @@ module Flails
             return true
           else
             subcontext.add(value)
+            return false
+          end
+        end
+
+        def try_object_reference_with_id(value)
+          if @context.objects.has_reference_for_with_id?(value)
+            encode_reference_with_id(value, @context.objects)
+            return true
+          else
+            @context.objects.add_with_id(value)
             return false
           end
         end

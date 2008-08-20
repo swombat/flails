@@ -26,6 +26,7 @@ module Flails
         end
         
         def get_reference(object)
+          object.class
           if (object.is_a?(Hash))
             @objects["Hash=>#{object.inspect}"]
           else

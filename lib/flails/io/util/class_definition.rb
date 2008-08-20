@@ -10,9 +10,9 @@ module Flails
           @@class_name_mappings = {}
         end
         
-        def self.get(klass)
+        def self.get(object)
           @@mappings ||= {}
-          @@mappings[klass.class] || ClassDefinition.new(klass)
+          @@mappings[object.class] || ClassDefinition.new(object)
         end
         
         def self.class_name_mappings=(class_name_mappings={})

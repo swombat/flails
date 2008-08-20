@@ -5,7 +5,7 @@ module Flails
         attr_reader :objects, :strings, :classes
         
         def initialize
-          @objects = Flails::IO::Util::GenericContext.new
+          @objects = Flails::IO::Util::OptimisedObjectsContext.new
           @strings = Flails::IO::Util::GenericContext.new
           @classes = Flails::IO::Util::GenericContext.new
         end
