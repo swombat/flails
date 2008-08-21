@@ -1,28 +1,11 @@
-# Unordered
+require 'rubygems'
+require 'activesupport'
+
 require 'date'
-require 'lib/flails/io/util/undefined_type'
-require 'lib/flails/app/model/renderable'
-require 'lib/flails/io/invalid_input_exception'
 
-# Ordered
-require 'lib/flails/io/util/generic_context'
-require 'lib/flails/io/util/big_endian_writer'
-require 'lib/flails/io/util/class_definition'
+$LOAD_PATH << File.dirname(__FILE__) + "/../lib/"
 
-require 'lib/flails/io/amf0/types'
-require 'lib/flails/io/amf0/context'
-require 'lib/flails/io/amf0/encoder'
-
-require 'lib/flails/io/amf3/types'
-require 'lib/flails/io/amf3/context'
-require 'lib/flails/io/amf3/encoder'
-
-require 'lib/flails/io/util/acknowledge_message'
-require 'lib/flails/io/util/reference_wrapper'
-require 'lib/flails/io/amf/flex_types/error_message'
-
-require 'lib/ruby_amf/util/vo_hash'
-require 'lib/ruby_amf/exceptions/as3_fault'
+Dependencies.load_paths = $LOAD_PATH
 
 require 'spec/shared_context_spec'
 
@@ -47,8 +30,12 @@ end
 
 class RenderableObject
   include Flails::App::Model::Renderable
+  
+  attr_reader :id
+  
   def initialize(attribs={'a'=>'b'})
     @attribs = attribs
+    @id = rand(1000)
   end
   
   def renderable_attributes

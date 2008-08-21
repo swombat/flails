@@ -1,14 +1,16 @@
 module ContextHelper
+  attr_accessor :include_hash
+  
   def add_objects(context)
     context.add 1
     context.add 2
     context.add "three"
     context.add %w(some words)
-    context.add({:a => "hash"})    
+    context.add({:a => "hash"}) if @include_hash != false
   end
   
   def expected_contents
-    [1, 2, "three", ["some", "words"], {:a => "hash"}]
+    @include_hash == false ? [1, 2, "three", ["some", "words"]] : [1, 2, "three", ["some", "words"], {:a => "hash"}]
   end
 end
 
@@ -25,7 +27,7 @@ shared_examples_for "amf context" do
   describe "adding objects" do
     it "should support adding objects one at a time" do
       add_objects(@context)
-      @context.objects.length.should == 5
+      @context.objects.length.should == expected_contents.length
     end
   end
 

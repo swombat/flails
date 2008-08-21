@@ -16,6 +16,14 @@ module Flails
           @objects[Array.to_s] = {}
           @objects[Hash.to_s] = {}
         end
+
+        def add_sub_hashes_for(objects)
+          objects.each { |object| self.add_sub_hash_for(object)}
+        end
+        
+        def add_sub_hash_for(object)
+          @objects[object.class.to_s] ||= {}
+        end
         
         def increment_counter
           @counter += 1
@@ -28,9 +36,10 @@ module Flails
         end
 
         def objects
-          @objects
+          @objects.inject({}) { |memo, (key, sub_hash)| memo.merge!(sub_hash) }
         end
         
+        # Objects with id
         def add_with_id(object)
           @objects[object.class.to_s]["#{object.id}"] = @counter
           @counter += 1
@@ -44,6 +53,21 @@ module Flails
           @objects[object.class.to_s].has_key?("#{object.id}")
         end
         
+        # Hashes (need separate since {:a => 'a'}.hash != {:a => 'a'}.hash)
+        def add_hash(object)
+          @objects["Hash"]["#{object.to_s}"] = @counter
+          @counter += 1
+        end
+
+        def get_reference_hash(object)
+          @objects["Hash"]["#{object.to_s}"]
+        end
+        
+        def has_reference_for_hash?(object)
+          @objects["Hash"].has_key?("#{object.to_s}")
+        end
+        
+        # Other objects
         def add(object)
           @objects[object.class.to_s]["#{object.hash}"] = @counter
           @counter += 1

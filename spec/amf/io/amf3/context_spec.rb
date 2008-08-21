@@ -7,11 +7,13 @@ describe Flails::IO::AMF3::Context do
 
   before(:each) do
     @amf3_context = Flails::IO::AMF3::Context.new
+    @amf3_context.objects.add_sub_hashes_for(self.expected_contents)
   end
 
   describe "handling the object context" do
     before(:each) do
       @context = @amf3_context.objects
+      @include_hash = false
     end
 
     it_should_behave_like "amf context"

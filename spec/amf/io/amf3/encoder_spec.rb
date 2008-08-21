@@ -204,16 +204,17 @@ describe Flails::IO::AMF3::Encoder do
       
       test_run(@encoder, data)            
     end
-    
-    it "should use references for dates" do
-      date = Time.utc(2003, 12, 1)
-      
-      data = {
-        [date, date]              => "\x09\x05\x01\x08\x01\x42\x6f\x25\xe2\xb2\x80\x00\x00\x08\x02"
-      }
-      
-      test_run(@encoder, data)
-    end
+
+    # Disabled (optimisation)
+    # it "should use references for dates" do
+    #   date = Time.utc(2003, 12, 1)
+    #   
+    #   data = {
+    #     [date, date]              => "\x09\x05\x01\x08\x01\x42\x6f\x25\xe2\xb2\x80\x00\x00\x08\x02"
+    #   }
+    #   
+    #   test_run(@encoder, data)
+    # end
   end
   
   #=========================
@@ -358,14 +359,14 @@ describe Flails::IO::AMF3::Encoder do
   #=========================
   # Mixed with References
   describe "using references for a variety of object" do
-    it "should not mix string references with array or date references" do
+    it "should not mix string references with array references" do
       data = {
         [Time.utc(2003, 12, 1), ["Hello"], "Hello", ""] => "\x09\x09\x01\x08\x01\x42\x6f\x25\xe2\xb2\x80\x00\x00\x09\x03\x01\x06\x0bHello\x06\x00\x06\x01"
       }
-
+    
       test_run(@encoder, data)
     end
-
+    
     it "should not mix string references with hash references" do
       hash = {"Hello" => "World"}
       data = {
@@ -375,20 +376,10 @@ describe Flails::IO::AMF3::Encoder do
                                           "\x09\x02" +                                              # ref for hash
                                           "\x06\x02"
       }
-
+    
       test_run(@encoder, data)
     end
         
-    it "should use the same reference count for arrays and dates" do
-      date = Time.utc(2003, 12, 1)
-      
-      data = {
-        [date, date]              => "\x09\x05\x01\x08\x01\x42\x6f\x25\xe2\xb2\x80\x00\x00\x08\x02"
-      }
-      
-      test_run(@encoder, data)
-    end
-
     it "should use the same references for arrays and hashes" do
       hash = {"Hello" => "World"}
       array = [hash, hash]
@@ -404,7 +395,7 @@ describe Flails::IO::AMF3::Encoder do
                                   "\x09\x04" +                        # ref for hash
                                 "\x09\x04"                            # ref for hash
       }
-
+    
       test_run(@encoder, data)
     end
   end

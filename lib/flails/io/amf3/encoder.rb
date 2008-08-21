@@ -94,6 +94,10 @@ module Flails
         def encode_reference_with_id(value, subcontext)
           @writer.f_write_vlint(subcontext.get_reference_with_id(value) << 1)
         end
+
+        def encode_reference_hash(value, subcontext)
+          @writer.f_write_vlint(subcontext.get_reference_hash(value) << 1)
+        end
         
         #=====================
         # Dates
@@ -118,7 +122,7 @@ module Flails
           @writer.f_write_uchar(Flails::IO::AMF3::Types::ARRAY) if include_type
 
           # @context.objects.increment_counter
-          return if try_reference(value, :objects)
+          return if try_hash_reference(value)
 
           # The AMF3 spec demands that all str based indices be listed first
           @writer.f_write_vlint(0x01) # (int_values.length << 1) + 1 === 0x01
@@ -168,10 +172,13 @@ module Flails
         def encode_renderable(value, include_type=true)
           @writer.f_write_uchar(Flails::IO::AMF3::Types::OBJECT) if include_type
           
+          class_definition = Flails::IO::Util::ClassDefinition::get(value)
+          
+          @context.objects.add_sub_hash_for(value) if class_definition.dynamic?
+
           return if try_object_reference_with_id(value)
           
-          class_definition = Flails::IO::Util::ClassDefinition::get(value)
-          self.encode_class_definition class_definition
+          self.encode_class_definition class_definition, value
 
           if class_definition.static?
             class_definition.attributes.each do |key|
@@ -187,7 +194,7 @@ module Flails
           
         end
         
-        def encode_class_definition(class_definition)
+        def encode_class_definition(class_definition, value)
           unless try_reference(class_definition, :classes)
             @writer.f_write_vlint(  (class_definition.sealed_attributes_count << 4) |
                                     (class_definition.encoding << 2) |
@@ -223,6 +230,16 @@ module Flails
             return true
           else
             @context.objects.add_with_id(value)
+            return false
+          end
+        end
+
+        def try_hash_reference(value)
+          if @context.objects.has_reference_for_hash?(value)
+            encode_reference_hash(value, @context.objects)
+            return true
+          else
+            @context.objects.add_hash(value)
             return false
           end
         end
