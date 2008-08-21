@@ -10,6 +10,9 @@ module Flails
           {}
         end
         
+        def depth(max_depth)
+          Flails::App::Model::RenderableClone.new(self, max_depth)
+        end
       end
     end
   end

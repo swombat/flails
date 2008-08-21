@@ -10,6 +10,8 @@ module Flails
     load File.expand_path(RAILS_ROOT) + '/config/flails_class_mappings.rb'
     load File.expand_path(RAILS_ROOT) + '/config/flails_parameter_mappings.rb'
 
+    load File.dirname(__FILE__) + '/monkey_patches.rb'
+
     ::Flails::IO::Util::ClassDefinition.class_name_mappings = { 
       ::Flails::IO::Util::AcknowledgeMessage.to_s => "flex.messaging.messages.AcknowledgeMessage",
       ::Flails::IO::AMF::FlexTypes::ErrorMessage.to_s => "flex.messaging.messages.ErrorMessage"
