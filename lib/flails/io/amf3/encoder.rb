@@ -143,8 +143,11 @@ module Flails
         def encode_array(value, include_type=true)
           @writer.f_write_uchar(Flails::IO::AMF3::Types::ARRAY) if include_type
 
-          # @context.objects.increment_counter
-          return if try_reference(value, :objects)
+          if array_collection_type.blank?
+            return if try_reference(value, :objects)
+          else
+            @context.objects.increment_counter
+          end
 
           @writer.f_write_vlint((value.length << 1) + 1)
           @writer.f_write_uchar(0x01)
@@ -157,7 +160,7 @@ module Flails
         def encode_array_collection(value) # no include_type, as it makes no sense here
           @writer.f_write_uchar(Flails::IO::AMF3::Types::OBJECT)
 
-          @context.objects.increment_counter
+          return if try_reference(value, :objects)
           
           unless try_reference(array_collection_type, :classes)
             @writer.f_write_uchar(0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
