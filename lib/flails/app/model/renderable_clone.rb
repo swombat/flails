@@ -5,6 +5,10 @@ module Flails
         include Flails::App::Model::Renderable
         attr_reader :original
         
+        def id
+          @original.id
+        end
+        
         def class
           @original.class
         end
@@ -12,15 +16,15 @@ module Flails
         def initialize(original, max_depth)
           @original = original
           @max_depth = max_depth
-          self.clone_attributes
+          #self.clone_attributes
         end
         
-        def clone_attributes
-          @renderable_attributes = {}
-          @original.renderable_attributes.each do |key, value|
-            @renderable_attributes[key] = render_value(value)
-          end
-        end
+        #def clone_attributes
+        #  @renderable_attributes = {}
+        #  @original.renderable_attributes.each do |key, value|
+        #    @renderable_attributes[key] = render_value(value)
+        #  end
+        #end
         
         def render_value(value)
           if value.is_a?(Hash) || value.is_a?(Array)
@@ -33,7 +37,7 @@ module Flails
         end
                 
         def renderable_attributes
-          @renderable_attributes
+          @original.renderable_attributes
         end
 
         def method_missing(id, *args)
