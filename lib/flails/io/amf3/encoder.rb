@@ -160,7 +160,8 @@ module Flails
         def encode_array_collection(value) # no include_type, as it makes no sense here
           @writer.f_write_uchar(Flails::IO::AMF3::Types::OBJECT)
 
-          return if try_reference(value, :objects)
+          #return if try_reference(value, :objects)
+          @context.objects.increment_counter
           
           unless try_reference(array_collection_type, :classes)
             @writer.f_write_uchar(0x01 | (0x01 << 1) | (0x01 << 2)) # U290-traits-ext
