@@ -47,6 +47,7 @@ module Flails
         def method_missing(id, *args)
           @original.send(id, *args)
         end
+
       end
     end
   end
