@@ -2,6 +2,7 @@ module RubyAMF
   module App
     class AMFController < ActionController::Base
 
+    protected
       # Add render :amf => object functionality
       def render_with_amf(options = nil, deprecated_status_or_extra_options=nil, &block)
         begin
