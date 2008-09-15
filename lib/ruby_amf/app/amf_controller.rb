@@ -20,10 +20,6 @@ module RubyAMF
       end
       alias_method_chain :render, :amf
       
-      attr_accessor :is_amf
-      attr_accessor :is_rubyamf
-      attr_accessor :rubyamf_params # this way they can always access the rubyamf_params
-
       # Higher level "credentials" method that returns credentials wether or not 
       # it was from setRemoteCredentials, or setCredentials  
       def credentials

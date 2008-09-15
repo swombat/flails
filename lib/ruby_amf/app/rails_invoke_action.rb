@@ -47,12 +47,8 @@ module RubyAMF
         req.env['PATH_INFO']         = req.env['REQUEST_PATH']              = req.env['REQUEST_URI']            = "#{controller}/#{action}"
         req.env['HTTP_ACCEPT'] = 'application/x-amf,' + req.env['HTTP_ACCEPT'].to_s
         
-        #set conditional helper
-        @service.is_amf = true
-        @service.is_rubyamf = true
-        
         #process the request
-        rubyamf_params = @service.rubyamf_params = {}
+        rubyamf_params = {}
         if @amfbody.value && !@amfbody.value.empty?
           @amfbody.value.each_with_index do |item,i|
             rubyamf_params[i] = item
@@ -69,11 +65,6 @@ module RubyAMF
           raise RubyAMF::Exceptions::AMFException.new(RubyAMF::Exceptions::AMFException::PARAMETER_MAPPING_ERROR, "There was an error with your parameter mappings: {#{e.message}}")
         end
         @service.process(req, res)
-        
-        #unset conditional helper
-        @service.is_amf = false
-        @service.is_rubyamf = false
-        @service.rubyamf_params = rubyamf_params # add the rubyamf_args into the controller to be accessed
         
         result = RequestStore.render_amf_results
         
