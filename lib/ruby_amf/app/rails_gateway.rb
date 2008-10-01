@@ -22,7 +22,14 @@ module RubyAMF
       def service(raw)
         amfobj = RubyAMF::App::AMFObject.new(raw)
         RubyAMF::Filters::FilterChain.new.run(amfobj)
-        RubyAMF::App::RequestStore.gzip ? Zlib::Deflate.deflate(amfobj.output_stream) : amfobj.output_stream
+        RAILS_DEFAULT_LOGGER.info "Uncompressed size: #{amfobj.output_stream.length}"
+        if RubyAMF::App::RequestStore.gzip
+          stream = Zlib::Deflate.deflate(amfobj.output_stream)
+          RAILS_DEFAULT_LOGGER.info "Compressed size: #{stream.length}"
+          return stream
+        else
+          return amfobj.output_stream
+        end
       end
     end
   end
