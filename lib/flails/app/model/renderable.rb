@@ -21,12 +21,12 @@ module Flails
           xml.tag!(xml_key(self.class.name)) do |r|
             self.renderable_attributes.each do |key, value|
               if value.is_a?(Flails::App::Model::Renderable)
-                r.tag!(xml_key(key), value.to_xml)
+                r.tag!(xml_key(key), value.to_xml(:skip_instruct => true))
               elsif value.is_a?(Array)
-                r.tag!(xml_key(key)) do
+                r.tag!(xml_key(key).pluralize) do
                   value.each do |sub_value|
                     if (sub_value.is_a?(Flails::App::Model::Renderable))
-                      r.tag(xml_key(sub_value.class.to_s), sub_value.to_xml)
+                      r << sub_value.to_xml(:skip_instruct => true)
                     else
                       r.item(sub_value.to_s)
                     end
