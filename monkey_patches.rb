@@ -16,7 +16,14 @@ class Hash
     if (max_depth < 0)
       nil
     else
-      self.inject({}) { |memo, (key, value)| memo[key] = value.respond_to?(:depth) ? value.depth(max_depth-1) : value }
+      self.inject({}) do |memo, (key, value)| 
+        memo[key] = if value.respond_to?(:depth)
+          value.depth(max_depth-1)
+        else
+          value
+        end
+        memo
+      end
     end
   end
 end
