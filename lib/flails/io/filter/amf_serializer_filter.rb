@@ -9,6 +9,8 @@ module Flails
         def serialize(amf_object)
           start = Time.now.to_f
           
+          RAILS_DEFAULT_LOGGER.info "AMF-Encoding started"
+          
           encoder = Flails::IO::AMF0::Encoder.new(amf_object.output_stream)
         
           encoder.writer.write :short, 3  # AMF version number
@@ -17,7 +19,7 @@ module Flails
         
           encoder.stream << encode_bodies(amf_object.bodies)
           
-          RAILS_DEFAULT_LOGGER.debug "AMF-Encoded in #{((Time.now.to_f - start)).round_with_precision(3)} seconds"
+          RAILS_DEFAULT_LOGGER.info "AMF-Encoded in #{((Time.now.to_f - start)).round_with_precision(3)} seconds"
         end
       
         def encode_headers(amf_headers)
