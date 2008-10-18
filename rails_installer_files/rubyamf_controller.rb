@@ -10,14 +10,18 @@ class RubyamfController < ActionController::Base
     
     #if not flash user agent, send some html content
     amf_response = if request.env['CONTENT_TYPE'].to_s.match(/x-amf/) 
-        headers['Content-Type'] = "application/x-amf"
-        RubyAMF::App::RailsGateway.new.service(request.raw_post) #send the raw data throught the rubyamf gateway and create the response
-      else 
-        welcome_screen_html # load in some stub html
-      end
+      headers['Content-Type'] = "application/x-amf"
+      RubyAMF::App::RailsGateway.new.service(request.raw_post) #send the raw data throught the rubyamf gateway and create the response
+    else 
+      welcome_screen_html # load in some stub html
+    end
+      
+    RAILS_DEFAULT_LOGGER.info "amf_response length (before): #{amf_response.length}"
             
     #render the AMF
     send_data(amf_response, :type => 'application/x-amf')
+
+    RAILS_DEFAULT_LOGGER.info "amf_response length (after): #{amf_response.length}"
   rescue Exception => e #only errors in this scope will ever be rescued here, see BatchFiler
     STDOUT.puts e.to_s
     STDOUT.puts e.backtrace
