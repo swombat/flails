@@ -21,12 +21,19 @@ module RubyAMF
       
       #do an entire read operation on a complete amf request
       def rubyamf_read(amfobj)
+        start = Time.now.to_f
+
+        RAILS_DEFAULT_LOGGER.info "Received AMF request (length: #{amfobj.input_stream.length})"
+        
         RequestStore.amf_encoding = 'amf0'
         @amfobj = amfobj
-        @stream = @amfobj.input_stream
+        @stream = @amfobj.input_stream        
+        
         preamble
         headers
         bodys
+        
+        RAILS_DEFAULT_LOGGER.info "AMF-Decoded in #{((Time.now.to_f - start)).round_with_precision(3)} seconds"
       end
       
       def reset_referencables

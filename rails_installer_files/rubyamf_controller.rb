@@ -16,12 +16,8 @@ class RubyamfController < ActionController::Base
       welcome_screen_html # load in some stub html
     end
       
-    RAILS_DEFAULT_LOGGER.info "amf_response length (before): #{amf_response.length}"
-            
     #render the AMF
     send_data(amf_response, :type => 'application/x-amf')
-
-    RAILS_DEFAULT_LOGGER.info "amf_response length (after): #{amf_response.length}"
   rescue Exception => e #only errors in this scope will ever be rescued here, see BatchFiler
     STDOUT.puts e.to_s
     STDOUT.puts e.backtrace
