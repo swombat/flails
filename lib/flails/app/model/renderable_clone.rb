@@ -24,10 +24,11 @@ module Flails
         end
         
         def clone_attributes
-         @renderable_attributes = {}
-         @original.renderable_attributes.each do |key, value|
-           @renderable_attributes[key] = render_value(value)
-         end
+          @renderable_attributes = {}
+          attributes = @max_depth > 0 ? @original.renderable_attributes : @original.renderable_attributes_without_depth
+          attributes.each do |key, value|
+            @renderable_attributes[key] = render_value(value)
+          end
         end
         
         def render_value(value)
