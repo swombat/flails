@@ -13,6 +13,10 @@ class FakeLogger
   def debug(*args)
     
   end
+  
+  def info(*args)
+    
+  end
 end
 
 RAILS_DEFAULT_LOGGER = FakeLogger.new
