@@ -32,6 +32,17 @@ module AMFEncoderHelper
   end
 end
 
+module AMFDecoderHelper
+  def test_run(decoder, data)
+    data.each do |key, value|
+      stream = ""
+      encoder.stream = stream
+      decoded = encoder.decode key
+      decoded.should == value
+    end
+  end
+end
+
 class RenderableObject
   include Flails::App::Model::Renderable
   

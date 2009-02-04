@@ -20,6 +20,27 @@ module Flails
         XML         = 0x0f
         TYPEDOBJECT = 0x10
         AMF3        = 0x11
+        
+        ALL_TYPES = [
+          NUMBER,
+          BOOL,
+          STRING,
+          OBJECT,
+          MOVIECLIP,
+          NULL,
+          UNDEFINED,
+          REFERENCE,
+          MIXEDARRAY,
+          OBJECTTERM,
+          ARRAY,
+          DATE,
+          LONGSTRING,
+          UNSUPPORTED,
+          RECORDSET,
+          XML,
+          TYPEDOBJECT,
+          AMF3
+          ]
       end
     end
   end
