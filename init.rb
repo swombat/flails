@@ -28,7 +28,7 @@ class Rails::Initializer #:nodoc:
   alias_method_chain :after_initialize, :flails_autoload 
 end
  
-Dispatcher.to_prepare(:flails_autoload) do
+ActionController::Dispatcher.to_prepare(:flails_autoload) do
   # Make sure it gets loaded in the app
   Flails.autoload
 end
