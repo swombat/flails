@@ -10,8 +10,8 @@ module Flails
           {}
         end
         
-        def depth(max_depth)
-          Flails::App::Model::RenderableClone.new(self, max_depth)
+        def depth(max_depth, options={})
+          Flails::App::Model::RenderableClone.new(self, max_depth, options)
         end
         
         def to_xml(options={})
