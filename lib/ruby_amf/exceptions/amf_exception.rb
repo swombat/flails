@@ -43,13 +43,14 @@ module RubyAMF
   
       def initialize(type,msg)
         super(msg)
+        RAILS_DEFAULT_LOGGER.debug "!!!!!!!! new exception with message #{msg}"
         @message = msg
         @etype = type
       end
   
       # stringify the message
       def to_s
-        @msg
+        @message
       end
   
     end
